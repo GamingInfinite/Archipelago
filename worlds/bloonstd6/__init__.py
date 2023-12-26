@@ -23,23 +23,27 @@ class BTD6World(World):
 
     # World Options
     game = "Bloons TD6"
-    options_dataclass: ClassVar[Type[PerGameCommonOptions]]
+    options_dataclass: ClassVar[Type[PerGameCommonOptions]] = BloonsTD6Options
     options: BloonsTD6Options
 
     bloonsMapData = BloonsLocations()
+    bloonsItemData = BloonsItems()
 
-    location_name_to_id = {name: code for name, code in bloonsMapData.locations}
+    item_name_to_id = {name: code for name, code in bloonsItemData.items.items()}
+    location_name_to_id = {name: code for name, code in bloonsMapData.locations.items()}
 
     victory_map_name: str = ""
-    starting_maps: List[str]
-    included_maps: List[str]
+    starting_maps: List[str] = []
+    included_maps: List[str] = []
 
     def generate_early(self) -> None:
         starting_map_count = self.options.starting_map_count.value
         total_map_count = self.options.total_maps.value
 
+        print(starting_map_count)
+        print(total_map_count)
         available_maps: List[str] = self.bloonsMapData.get_maps(
-            self, self.options.min_map_diff.value, self.options.max_map_diff.value
+            self.options.min_map_diff.value, self.options.max_map_diff.value
         )
 
         self.random.shuffle(available_maps)
@@ -61,7 +65,7 @@ class BTD6World(World):
 
         if name in self.starting_maps or name in self.included_maps:
             return BTD6MapUnlock(
-                name, self.bloonsMapData.get_map_code(name), self.player
+                name, self.bloonsItemData.items[name + "-Unlock"], self.player
             )
 
         if name in BloonsItems.level_rewards:
@@ -73,7 +77,7 @@ class BTD6World(World):
         # Remember to add Monkey Money later for future Hero Checks.
 
     def create_items(self) -> None:
-        map_keys = self.starting_maps.copy().extend(self.included_maps.copy())
+        map_keys = self.included_maps.copy()
 
         for name in range(len(map_keys)):
             self.multiworld.itempool.append(self.create_item(name))
@@ -94,12 +98,15 @@ class BTD6World(World):
         menu_region.connect(map_select_region)
         menu_region.connect(xp_region)
 
-        for i in range(len(self.starting_maps) + len(self.included_maps)):
+        all_maps_copy = self.starting_maps.copy()
+        incl_maps_copy = self.included_maps.copy()
+
+        self.random.shuffle(incl_maps_copy)
+        all_maps_copy.extend(incl_maps_copy)
+
+        for i in range(len(all_maps_copy)):
             name: str
-            if i > len(self.starting_maps):
-                name = self.included_maps[i - len(self.starting_maps)]
-            else:
-                name = self.starting_maps[i]
+            name = all_maps_copy[i]
 
             region = Region(name, self.player, self.multiworld)
             self.multiworld.regions.append(region)
@@ -165,8 +172,8 @@ class BTD6World(World):
                 )
 
         for i in range(self.options.max_level.value):
-            name: str = "Level " + i + 1
-            xp_region.add_locations({name: 1010 + i})
+            name: str = f"Level {i+1}"
+            xp_region.add_locations({name: self.bloonsMapData.locations[name]})
 
     def set_rules(self) -> None:
         self.multiworld.completion_condition[self.player] = lambda state: state.has(

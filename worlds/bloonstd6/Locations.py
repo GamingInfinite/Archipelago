@@ -110,10 +110,10 @@ class BloonsLocations:
     }
 
     def __init__(self) -> None:
-        index = 70 + Utils.BaseOffset
+        index = 70 + Utils.BASE_OFFSET
 
-        for diff in self.map_names_by_difficulty:
-            for name in diff:
+        for _, list in self.map_names_by_difficulty.items():
+            for name in list:
                 self.locations[f"{name}-Easy"] = index
                 self.locations[f"{name}-PrimaryOnly"] = index + 1
                 self.locations[f"{name}-Deflation"] = index + 2
@@ -128,22 +128,23 @@ class BloonsLocations:
                 self.locations[f"{name}-AlternateBloonRounds"] = index + 11
                 self.locations[f"{name}-Impoppable"] = index + 12
                 self.locations[f"{name}-Clicks"] = index + 13
-                self.locations[f"{name}-Unlock"] = index + 14
-                index += 15
+                index += 14
 
-    def get_maps(self, minDiff, maxDiff) -> List[str]:
+        for i in range(150):
+            self.locations[f"Level {i+1}"] = index
+            index += 1
+
+    def get_maps(self, minDiff = 0, maxDiff = 3) -> List[str]:
         """List all Map IDs within the difficulties that can be played."""
         filtered_list: List[str] = []
 
         index = 0
 
         for diff, list in self.map_names_by_difficulty.items():
-            if index > minDiff and index < maxDiff:
+            if (index > minDiff and index < maxDiff):
                 continue
             filtered_list.extend(list)
             index += 1
 
         return filtered_list
 
-    def get_map_code(self, name):
-        return self.locations[name + "-Unlock"]

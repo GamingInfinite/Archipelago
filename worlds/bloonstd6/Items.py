@@ -1,5 +1,6 @@
-from typing import Optional
+from typing import List, Optional
 from BaseClasses import Item, ItemClassification
+from worlds.bloonstd6.Locations import BloonsLocations
 from .Utils import Utils
 
 
@@ -49,6 +50,19 @@ class BloonsItems:
     KNOWLEDGE_CODE: int = 1
 
     item_offset = 2 + Utils.BASE_OFFSET
+
+    items = {}
+
+    def __init__(self) -> None:
+        mapdata = BloonsLocations()
+        
+        self.items[self.MEDAL_NAME] = self.MEDAL_CODE + Utils.BASE_OFFSET
+        self.items[self.KNOWLEDGE_NAME] = self.KNOWLEDGE_CODE + Utils.BASE_OFFSET
+
+        index = self.item_offset
+        for name in mapdata.get_maps():
+            self.items[name + "-Unlock"] = index
+            index += 1
 
     level_rewards = [
         "Boomerang Monkey",
