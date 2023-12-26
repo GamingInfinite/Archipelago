@@ -25,7 +25,7 @@ class BTD6Level(Location):
 
 
 class BloonsLocations:
-    locations = {}
+    locations: Dict[str, int] = {}
 
     map_names_by_difficulty: Dict[str, List[str]] = {
         "beginner": [
@@ -141,9 +141,8 @@ class BloonsLocations:
         index = 0
 
         for diff, list in self.map_names_by_difficulty.items():
-            if (index > minDiff and index < maxDiff):
-                continue
-            filtered_list.extend(list)
+            if index <= maxDiff or index >= minDiff:
+                filtered_list += list
             index += 1
 
         return filtered_list

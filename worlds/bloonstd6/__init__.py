@@ -60,26 +60,23 @@ class BTD6World(World):
             self.multiworld.push_precollected(self.create_item(map))
 
     def create_item(self, name: str) -> Item:
-        if name == BloonsItems.MEDAL_NAME:
-            return BTD6MedalItem(name, self.player)
+        if name == self.bloonsItemData.MEDAL_NAME:
+            return BTD6MedalItem(name, self.bloonsItemData.MEDAL_CODE, self.player)
 
-        if name in self.starting_maps or name in self.included_maps:
-            return BTD6MapUnlock(
-                name, self.bloonsItemData.items[name + "-Unlock"], self.player
-            )
+        # if name in BloonsItems.level_rewards:
+        #     return BTD6LevelItem(name, self.player)
 
-        if name in BloonsItems.level_rewards:
-            return BTD6LevelItem(name, self.player)
+        if name == self.bloonsItemData.KNOWLEDGE_NAME:
+            return BTD6FillerItem(name, self.bloonsItemData.KNOWLEDGE_CODE, self.player)
 
-        if name == BloonsItems.KNOWLEDGE_NAME:
-            return BTD6FillerItem(name, BloonsItems.KNOWLEDGE_CODE, self.player)
-
+        map = self.bloonsItemData.items.get(f"{name}-Unlock")
+        return BTD6MapUnlock(f"{name}-Unlock", map, self.player)
         # Remember to add Monkey Money later for future Hero Checks.
 
     def create_items(self) -> None:
         map_keys = self.included_maps.copy()
 
-        for name in range(len(map_keys)):
+        for name in map_keys:
             self.multiworld.itempool.append(self.create_item(name))
 
         for _ in range(len(map_keys) * self.options.rando_difficulty.value):

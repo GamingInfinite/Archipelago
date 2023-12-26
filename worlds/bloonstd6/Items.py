@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import Dict, List, Optional
 from BaseClasses import Item, ItemClassification
 from worlds.bloonstd6.Locations import BloonsLocations
 from .Utils import Utils
@@ -7,11 +7,11 @@ from .Utils import Utils
 class BTD6MedalItem(Item):
     game: str = "Bloons TD6"
 
-    def __init__(self, name: str, player: int):
+    def __init__(self, name: str, code: Optional[int], player: int):
         super().__init__(
             name,
             ItemClassification.progression_skip_balancing,
-            BloonsItems.MEDAL_CODE,
+            code,
             player,
         )
 
@@ -44,24 +44,25 @@ class BTD6FillerItem(Item):
 
 class BloonsItems:
     MEDAL_NAME: str = "Medal"
-    MEDAL_CODE: int = 0
+    MEDAL_CODE: int = Utils.BASE_OFFSET
 
     KNOWLEDGE_NAME: str = "Monkey Knowledge"
-    KNOWLEDGE_CODE: int = 1
+    KNOWLEDGE_CODE: int = Utils.BASE_OFFSET + 1
 
     item_offset = 2 + Utils.BASE_OFFSET
 
-    items = {}
+    items: Dict[str, int] = {}
 
     def __init__(self) -> None:
         mapdata = BloonsLocations()
-        
-        self.items[self.MEDAL_NAME] = self.MEDAL_CODE + Utils.BASE_OFFSET
-        self.items[self.KNOWLEDGE_NAME] = self.KNOWLEDGE_CODE + Utils.BASE_OFFSET
+        maplist = mapdata.get_maps()
+
+        self.items[self.MEDAL_NAME] = self.MEDAL_CODE
+        self.items[self.KNOWLEDGE_NAME] = self.KNOWLEDGE_CODE
 
         index = self.item_offset
-        for name in mapdata.get_maps():
-            self.items[name + "-Unlock"] = index
+        for name in maplist:
+            self.items[f"{name}-Unlock"] = index
             index += 1
 
     level_rewards = [
