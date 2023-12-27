@@ -130,8 +130,8 @@ class BloonsLocations:
                 self.locations[f"{name}-Clicks"] = index + 13
                 index += 14
 
-        for i in range(150):
-            self.locations[f"Level {i+1}"] = index
+        for i in range(149):
+            self.locations[f"Level {i+2}"] = index
             index += 1
 
     def get_maps(self, minDiff = 0, maxDiff = 3) -> List[str]:

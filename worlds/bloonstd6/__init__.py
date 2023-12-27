@@ -1,3 +1,4 @@
+import math
 from BaseClasses import Item, Region
 from worlds.AutoWorld import World
 
@@ -168,23 +169,27 @@ class BTD6World(World):
                     BTD6Medal,
                 )
 
-        for i in range(self.options.max_level.value):
-            name: str = f"Level {i+1}"
+        for i in range(self.options.max_level.value-1):
+            name: str = f"Level {i+2}"
             xp_region.add_locations({name: self.bloonsMapData.locations[name]})
 
     def set_rules(self) -> None:
         self.multiworld.completion_condition[self.player] = lambda state: state.has(
             BloonsItems.MEDAL_NAME,
             self.player,
-            (len(self.starting_maps) + len(self.included_maps))
+            int(round((len(self.starting_maps) + len(self.included_maps))
             * self.options.rando_difficulty.value
-            * (self.options.medalreq.value / 100),
+            * (self.options.medalreq.value / 100))),
         )
 
     def fill_slot_data(self) -> Dict[str, Any]:
         return {
             "victoryLocation": self.victory_map_name,
-            "medalsNeeded": (len(self.starting_maps) + len(self.included_maps))
+            "medalsNeeded": int(round((len(self.starting_maps) + len(self.included_maps))
             * self.options.rando_difficulty.value
-            * (self.options.medalreq.value / 100),
+            * (self.options.medalreq.value / 100))),
+            "xpCurve": self.options.xp_curve.value,
+            "staticXPReq": int(self.options.static_req.value),
+            "maxLevel": int(self.options.max_level.value),
+            "difficulty": int(self.options.rando_difficulty.value)
         }
