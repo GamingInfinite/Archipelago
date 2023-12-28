@@ -108,8 +108,6 @@ class StaticXPRequirement(Range):
     """
     Min Req. 500 XP
     Max Req. 10,000 XP
-
-    If you're setting this to max who are you and why are you doing this to everyone in your multiworld.
     """
 
     display_name = "Static XP Requirement"

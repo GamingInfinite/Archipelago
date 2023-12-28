@@ -141,7 +141,7 @@ class BloonsLocations:
         index = 0
 
         for diff, list in self.map_names_by_difficulty.items():
-            if index <= maxDiff or index >= minDiff:
+            if index <= maxDiff and index >= minDiff:
                 filtered_list += list
             index += 1
 
