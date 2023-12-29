@@ -22,18 +22,11 @@ class BTD6MapUnlock(Item):
     def __init__(self, name: str, code: Optional[int], player: int):
         super().__init__(name, ItemClassification.progression, code, player)
 
-
-class BTD6LevelItem(Item):
+class BTD6MonkeyUnlock(Item):
     game: str = "Bloons TD6"
 
-    def __init__(self, name: str, player: int):
-        super().__init__(
-            name,
-            ItemClassification.useful,
-            BloonsItems.level_rewards.index(name) + BloonsItems.item_offset,
-            player,
-        )
-
+    def __init__(self, name: str, code: Optional[int], player: int):
+        super().__init__(name, ItemClassification.useful, code, player)
 
 class BTD6FillerItem(Item):
     game: str = "Bloons TD6"
@@ -53,6 +46,32 @@ class BloonsItems:
 
     items: Dict[str, int] = {}
 
+    monkeyIDs: List[str] = [
+        "DartMonkey",
+        "BoomerangMonkey",
+        "BombShooter",
+        "TackShooter",
+        "IceMonkey",
+        "GlueGunner",
+        "SniperMonkey",
+        "MonkeySub",
+        "MonkeyBuccaneer",
+        "MonkeyAce",
+        "HeliPilot",
+        "MortarMonkey",
+        "DartlingGunner",
+        "WizardMonkey",
+        "SuperMonkey",
+        "NinjaMonkey",
+        "Alchemist",
+        "Druid",
+        "BananaFarm",
+        "SpikeFactory",
+        "MonkeyVillage",
+        "EngineerMonkey",
+        "BeastHandler",
+    ]
+
     def __init__(self) -> None:
         mapdata = BloonsLocations()
         maplist = mapdata.get_maps()
@@ -62,7 +81,10 @@ class BloonsItems:
 
         index = self.item_offset
         for name in maplist:
-            self.items[f"{name}-Unlock"] = index
+            self.items[f"{name}-MUnlock"] = index
+            index += 1
+        for name in self.monkeyIDs:
+            self.items[f"{name}-TUnlock"] = index
             index += 1
 
     level_rewards = [

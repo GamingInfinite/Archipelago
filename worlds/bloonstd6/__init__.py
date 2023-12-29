@@ -9,9 +9,9 @@ from .Options import BloonsTD6Options, Difficulty
 from .Locations import BTD6Medal, BloonsLocations
 from .Items import (
     BTD6FillerItem,
-    BTD6LevelItem,
     BTD6MapUnlock,
     BTD6MedalItem,
+    BTD6MonkeyUnlock,
     BloonsItems,
 )
 
@@ -37,6 +37,9 @@ class BTD6World(World):
     starting_maps: List[str] = []
     included_maps: List[str] = []
 
+    starting_monkeys: List[str] = []
+    remaining_monkeys: List[str] = []
+
     def generate_early(self) -> None:
         starting_map_count = self.options.starting_map_count.value
         total_map_count = self.options.total_maps.value
@@ -46,6 +49,14 @@ class BTD6World(World):
         available_maps: List[str] = self.bloonsMapData.get_maps(
             self.options.min_map_diff.value, self.options.max_map_diff.value
         )
+
+        available_towers: List[str] = self.bloonsItemData.monkeyIDs.copy()
+        if not self.options.starting_monkey.value:
+            self.starting_monkeys.append(available_towers.pop(0))
+            self.random.shuffle(available_towers)
+        else:
+            self.random.shuffle(available_towers)
+            self.starting_monkeys.append(available_towers.pop())
 
         self.random.shuffle(available_maps)
         self.victory_map_name = available_maps.pop()
@@ -57,21 +68,29 @@ class BTD6World(World):
                 break
             self.included_maps.append(available_maps.pop())
 
+        for _ in range(self.options.num_start_monkey.value - 1):
+            self.starting_monkeys.append(available_towers.pop())
+
+        self.remaining_monkeys.extend(available_towers)
+
         for map in self.starting_maps:
             self.multiworld.push_precollected(self.create_item(map))
+
+        for monkey in self.starting_monkeys:
+            self.multiworld.push_precollected(self.create_item(monkey))
 
     def create_item(self, name: str) -> Item:
         if name == self.bloonsItemData.MEDAL_NAME:
             return BTD6MedalItem(name, self.bloonsItemData.MEDAL_CODE, self.player)
 
-        # if name in BloonsItems.level_rewards:
-        #     return BTD6LevelItem(name, self.player)
-
         if name == self.bloonsItemData.KNOWLEDGE_NAME:
             return BTD6FillerItem(name, self.bloonsItemData.KNOWLEDGE_CODE, self.player)
 
-        map = self.bloonsItemData.items.get(f"{name}-Unlock")
-        return BTD6MapUnlock(f"{name}-Unlock", map, self.player)
+        map = self.bloonsItemData.items.get(f"{name}-MUnlock")
+        monkey = self.bloonsItemData.items.get(f"{name}-TUnlock")
+        if map:
+            return BTD6MapUnlock(f"{name}-MUnlock", map, self.player)
+        return BTD6MonkeyUnlock(f"{name}-TUnlock", monkey, self.player)
         # Remember to add Monkey Money later for future Hero Checks.
 
     def create_items(self) -> None:
@@ -83,7 +102,10 @@ class BTD6World(World):
         for _ in range(len(map_keys) * self.options.rando_difficulty.value):
             self.multiworld.itempool.append(self.create_item(BloonsItems.MEDAL_NAME))
 
-        for _ in range(self.options.max_level):
+        for monkey in self.remaining_monkeys:
+            self.multiworld.itempool.append(self.create_item(monkey))
+
+        for _ in range(self.options.max_level.value - len(self.remaining_monkeys)):
             self.multiworld.itempool.append(
                 self.create_item(BloonsItems.KNOWLEDGE_NAME)
             )
@@ -111,7 +133,7 @@ class BTD6World(World):
             map_select_region.connect(
                 region,
                 name,
-                lambda state, place=name + "-Unlock": state.has(place, self.player),
+                lambda state, place=name + "-MUnlock": state.has(place, self.player),
             )
 
             # Handle Mode Based Checks
@@ -169,7 +191,7 @@ class BTD6World(World):
                     BTD6Medal,
                 )
 
-        for i in range(self.options.max_level.value-1):
+        for i in range(self.options.max_level.value - 1):
             name: str = f"Level {i+2}"
             xp_region.add_locations({name: self.bloonsMapData.locations[name]})
 
@@ -177,19 +199,27 @@ class BTD6World(World):
         self.multiworld.completion_condition[self.player] = lambda state: state.has(
             BloonsItems.MEDAL_NAME,
             self.player,
-            int(round((len(self.starting_maps) + len(self.included_maps))
-            * self.options.rando_difficulty.value
-            * (self.options.medalreq.value / 100))),
+            int(
+                round(
+                    (len(self.starting_maps) + len(self.included_maps))
+                    * self.options.rando_difficulty.value
+                    * (self.options.medalreq.value / 100)
+                )
+            ),
         )
 
     def fill_slot_data(self) -> Dict[str, Any]:
         return {
             "victoryLocation": self.victory_map_name,
-            "medalsNeeded": int(round((len(self.starting_maps) + len(self.included_maps))
-            * self.options.rando_difficulty.value
-            * (self.options.medalreq.value / 100))),
+            "medalsNeeded": int(
+                round(
+                    (len(self.starting_maps) + len(self.included_maps))
+                    * self.options.rando_difficulty.value
+                    * (self.options.medalreq.value / 100)
+                )
+            ),
             "xpCurve": self.options.xp_curve.value,
             "staticXPReq": int(self.options.static_req.value),
             "maxLevel": int(self.options.max_level.value),
-            "difficulty": int(self.options.rando_difficulty.value)
+            "difficulty": int(self.options.rando_difficulty.value),
         }

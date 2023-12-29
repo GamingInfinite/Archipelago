@@ -84,12 +84,23 @@ class MedalRequirementPercentage(Range):
     default = 50
 
 
-class StartingMonkey(Toggle):
+class StartingMonkeys(Toggle):
     """
-    Do you want a random starting monkey or the vanilla Dart Monkey (Not Implemented)
+    Do you want random starting monkeys or the vanilla Dart Monkey in addition to extra starting towers?
     """
 
     display_name = "Starting Monkey"
+
+
+class StartingMonkeyAmount(Range):
+    """
+    How many starting Monkeys would you like?
+    """
+
+    range_start = 1
+    range_end = 3
+    default = 1
+    display_name = "Starting Monkey Amount"
 
 
 class XPCurve(Toggle):
@@ -137,7 +148,8 @@ class BloonsTD6Options(PerGameCommonOptions):
     max_map_diff: MaxMapDiff
     rando_difficulty: Difficulty
     medalreq: MedalRequirementPercentage
-    starting_monkey: StartingMonkey
+    starting_monkey: StartingMonkeys
+    num_start_monkey: StartingMonkeyAmount
     xp_curve: XPCurve
     static_req: StaticXPRequirement
     max_level: MaxLevel
