@@ -4,6 +4,7 @@ from worlds.AutoWorld import World
 
 from typing import Any, ClassVar, Dict, List, Type
 from Options import PerGameCommonOptions
+from worlds.generic.Rules import set_rule
 
 from .Options import BloonsTD6Options, Difficulty
 from .Locations import BTD6Medal, BloonsLocations
@@ -95,17 +96,28 @@ class BTD6World(World):
 
     def create_items(self) -> None:
         map_keys = self.included_maps.copy()
+        all_map_keys: List[str] = map_keys.copy()
+        all_map_keys.extend(self.starting_maps.copy())
+
+        total_items = (
+            len(map_keys)
+            + (len(all_map_keys) * self.options.rando_difficulty.value)
+            + (self.options.max_level.value)
+        )
 
         for name in map_keys:
             self.multiworld.itempool.append(self.create_item(name))
+            total_items -= 1
 
-        for _ in range(len(map_keys) * self.options.rando_difficulty.value):
+        for _ in range(len(all_map_keys) * self.options.rando_difficulty.value):
             self.multiworld.itempool.append(self.create_item(BloonsItems.MEDAL_NAME))
+            total_items -= 1
 
         for monkey in self.remaining_monkeys:
             self.multiworld.itempool.append(self.create_item(monkey))
+            total_items -= 1
 
-        for _ in range(self.options.max_level.value - len(self.remaining_monkeys)):
+        for _ in range(total_items):
             self.multiworld.itempool.append(
                 self.create_item(BloonsItems.KNOWLEDGE_NAME)
             )

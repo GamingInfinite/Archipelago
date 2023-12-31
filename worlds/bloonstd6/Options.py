@@ -86,10 +86,13 @@ class MedalRequirementPercentage(Range):
 
 class StartingMonkeys(Toggle):
     """
-    Do you want random starting monkeys or the vanilla Dart Monkey in addition to extra starting towers?
+    Would you like to randomize all starting monkeys or include the Dart Monkey in the starting monkeys.
+
+    True/On: All Starting Monkeys will be random.
+    False/Off: The first starting monkey no matter how many you include will always be the vanilla Dart Monkey.
     """
 
-    display_name = "Starting Monkey"
+    display_name = "Random Starting Monkeys"
 
 
 class StartingMonkeyAmount(Range):
