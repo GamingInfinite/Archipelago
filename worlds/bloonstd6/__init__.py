@@ -112,8 +112,6 @@ class BTD6World(World):
             self.multiworld.itempool.append(self.create_item(name))
             total_items -= 1
 
-        numMedals = len(all_map_keys) * self.options.rando_difficulty.value
-
         for _ in range(len(all_map_keys) * self.options.rando_difficulty.value):
             self.multiworld.itempool.append(self.create_item(BloonsItems.MEDAL_NAME))
             total_items -= 1
