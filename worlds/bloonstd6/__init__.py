@@ -34,24 +34,40 @@ class BTD6World(World):
     item_name_to_id = {name: code for name, code in bloonsItemData.items.items()}
     location_name_to_id = {name: code for name, code in bloonsMapData.locations.items()}
 
-    victory_map_name: str = ""
-    starting_maps: List[str] = []
-    included_maps: List[str] = []
-
-    starting_monkeys: List[str] = []
-    remaining_monkeys: List[str] = []
-
     def generate_early(self) -> None:
-        starting_map_count = self.options.starting_map_count.value
-        total_map_count = self.options.total_maps.value
+        ## Initialize per-player instances of variables:
+        self.starting_maps: List[str] = []
+        self.included_maps: List[str] = []
 
-        print(starting_map_count)
-        print(total_map_count)
+        self.starting_monkeys: List[str] = []
+        self.remaining_monkeys: List[str] = []
+
+        ## Handle selection of maps for locations
         available_maps: List[str] = self.bloonsMapData.get_maps(
             self.options.min_map_diff.value, self.options.max_map_diff.value
         )
+        self.random.shuffle(available_maps)
+        
+        # Select Victory Map
+        self.victory_map_name = available_maps.pop()
+        
+        # Select and initialize starting maps
+        for _ in range(self.options.starting_map_count.value):
+            self.starting_maps.append(available_maps.pop())
 
+        for map in self.starting_maps:
+            self.multiworld.push_precollected(self.create_item(map))
+
+        # Select unlockable maps for item checks
+        for _ in range(self.options.total_maps.value):
+            if len(available_maps) == 0:
+                break
+            self.included_maps.append(available_maps.pop())
+
+        ## Handle start of game initialization for monkey towers
         available_towers: List[str] = self.bloonsItemData.monkeyIDs.copy()
+
+        # Sets starting monkey to Dart Monkey or randomizes it based on options
         if not self.options.starting_monkey.value:
             self.starting_monkeys.append(available_towers.pop(0))
             self.random.shuffle(available_towers)
@@ -59,26 +75,17 @@ class BTD6World(World):
             self.random.shuffle(available_towers)
             self.starting_monkeys.append(available_towers.pop())
 
-        self.random.shuffle(available_maps)
-        self.victory_map_name = available_maps.pop()
-        for _ in range(starting_map_count):
-            self.starting_maps.append(available_maps.pop())
-
-        for _ in range(total_map_count):
-            if len(available_maps) == 0:
-                break
-            self.included_maps.append(available_maps.pop())
-
+        # Adds additional starting monkeys based on options
         for _ in range(self.options.num_start_monkey.value - 1):
             self.starting_monkeys.append(available_towers.pop())
 
-        self.remaining_monkeys.extend(available_towers)
-
-        for map in self.starting_maps:
-            self.multiworld.push_precollected(self.create_item(map))
-
         for monkey in self.starting_monkeys:
             self.multiworld.push_precollected(self.create_item(monkey))
+
+        # Put the rest of the monkeys into storage for item generation
+        self.remaining_monkeys.extend(available_towers)
+
+
 
     def create_item(self, name: str) -> Item:
         if name == self.bloonsItemData.MEDAL_NAME:
@@ -99,15 +106,13 @@ class BTD6World(World):
         all_map_keys: List[str] = map_keys.copy()
         all_map_keys.extend(self.starting_maps.copy())
 
-        total_items = (
-            len(map_keys)
-            + (len(all_map_keys) * self.options.rando_difficulty.value)
-            + (self.options.max_level.value)
-        )
+        total_items = len(self.multiworld.get_unfilled_locations(self.player))
 
         for name in map_keys:
             self.multiworld.itempool.append(self.create_item(name))
             total_items -= 1
+
+        numMedals = len(all_map_keys) * self.options.rando_difficulty.value
 
         for _ in range(len(all_map_keys) * self.options.rando_difficulty.value):
             self.multiworld.itempool.append(self.create_item(BloonsItems.MEDAL_NAME))
@@ -121,7 +126,7 @@ class BTD6World(World):
             self.multiworld.itempool.append(
                 self.create_item(BloonsItems.KNOWLEDGE_NAME)
             )
-
+        
     def create_regions(self) -> None:
         menu_region = Region("Menu", self.player, self.multiworld)
         map_select_region = Region("Map Select", self.player, self.multiworld)
