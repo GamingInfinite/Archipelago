@@ -58,6 +58,7 @@ class BloonsLocations:
             "CoveredGarden",
             "Quarry",
             "QuietStreet",
+            "SulfurSprings",
             "BloonariusPrime",
             "Balance",
             "Encrypted",
