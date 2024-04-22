@@ -77,6 +77,7 @@ class BloonsLocations:
             "SpiceIslands",
         ],
         "advanced": [
+            "CastleRevenge",
             "DarkPath",
             "Erosion",
             "MidnightMansion",
