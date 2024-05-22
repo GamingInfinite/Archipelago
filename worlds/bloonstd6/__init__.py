@@ -233,7 +233,7 @@ class BTD6World(World):
                     * (self.options.medalreq.value / 100)
                 )
             ),
-            "xpCurve": self.options.xp_curve.value,
+            "xpCurve": bool(self.options.xp_curve.value),
             "staticXPReq": int(self.options.static_req.value),
             "maxLevel": int(self.options.max_level.value),
             "difficulty": int(self.options.rando_difficulty.value),
