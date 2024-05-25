@@ -72,6 +72,8 @@ class BloonsItems:
         "BeastHandler",
     ]
 
+    knowledgeIDs: List[str] = ["NavalUpgrades", "AirforceUpgrades", "EliteMilitaryTraining", "EmergencyUnlock"]
+
     def __init__(self) -> None:
         mapdata = BloonsLocations()
         maplist = mapdata.get_maps()
@@ -85,6 +87,9 @@ class BloonsItems:
             index += 1
         for name in self.monkeyIDs:
             self.items[f"{name}-TUnlock"] = index
+            index += 1
+        for name in self.knowledgeIDs:
+            self.items[f"{name}-KUnlock"] = index
             index += 1
 
     level_rewards = [
