@@ -1,5 +1,6 @@
 from typing import Dict, List, NamedTuple, Optional
 from BaseClasses import Location, Region
+from worlds.bloonstd6.Items import BloonsItems
 from .Utils import Utils
 
 
@@ -16,6 +17,14 @@ class BTD6Medal(Location):
         name: str = "",
         code: int | None = None,
         parent: Region | None = None,
+    ):
+        super().__init__(player, name, code, parent)
+
+class BTD6Knowledge(Location):
+    game: str = "Bloons TD6"
+
+    def __init__(
+            self, player: int, name: str = "", code: int = None, parent: Region = None
     ):
         super().__init__(player, name, code, parent)
 
@@ -134,6 +143,10 @@ class BloonsLocations:
 
         for i in range(149):
             self.locations[f"Level {i+2}"] = index
+            index += 1
+
+        for _, item in BloonsItems.knowledgeIDs:
+            self.locations[item] = index
             index += 1
 
     def get_maps(self, minDiff = 0, maxDiff = 3) -> List[str]:

@@ -22,7 +22,14 @@ class BTD6MapUnlock(Item):
     def __init__(self, name: str, code: Optional[int], player: int):
         super().__init__(name, ItemClassification.progression, code, player)
 
+
 class BTD6MonkeyUnlock(Item):
+    game: str = "Bloons TD6"
+
+    def __init__(self, name: str, code: Optional[int], player: int):
+        super().__init__(name, ItemClassification.useful, code, player)
+
+class BTD6KnowledgeUnlock(Item):
     game: str = "Bloons TD6"
 
     def __init__(self, name: str, code: Optional[int], player: int):
@@ -72,7 +79,95 @@ class BloonsItems:
         "BeastHandler",
     ]
 
-    knowledgeIDs: List[str] = ["NavalUpgrades", "AirforceUpgrades", "EliteMilitaryTraining", "EmergencyUnlock"]
+    knowledgeIDs: List[str] = [
+        "NavalUpgrades",
+        "AirforceUpgrades",
+        "EliteMilitaryTraining",
+        "EmergencyUnlock",
+        "BigBunch",
+        "AcceleratedAerodarts",
+        "CeramicShock",
+        "ExtraBurnyStuff",
+        "BreakingBallistic",
+        "FasterTakedowns",
+        "TargetedPineapples",
+        "RapidRazors",
+        "CheaperMaiming",
+        "GorgonStorm",
+        "QuadBurst",
+        "TradeAgreements",
+        "GunCoolant",
+        "PaintStripper",
+        "CrossTheStreams",
+        "ChargedChinooks",
+        "AeronauticSubsidy",
+        "MasterDefender",
+        "BudgetBattery",
+        "Wingmonkey",
+        "FlankingManeuvers",
+        "SubAdmiral",
+        "MilitaryConscription",
+        "DoorGunner",
+        "AdvancedLogistics",
+        "BigBloonSabotage",
+        "SuperRange",
+        "MagicTricks",
+        "LingeringMagic",
+        "CheaperDoubles",
+        "HeavyKnockback",
+        "HotMagic",
+        "SpeedyBrewing",
+        "MoMonkeyMoney",
+        "DiversionTactics",
+        "StrikeDownTheFalse",
+        "WarmOak",
+        "StrongTonic",
+        "XrayUltra",
+        "ArcaneImpale",
+        "AcidStability",
+        "ColdFront",
+        "FlameJet",
+        "DeadlyTranquility",
+        "ThereCanBeOnlyOne",
+        "VineRupture",
+        "ManaShield",
+        "TinyTornadoes",
+        "FlatPackBuildings",
+        "OneMoreSpike",
+        "InsiderTrades",
+        "MoreValuableBananas",
+        "FirstLastLineOfDefense",
+        "MonkeyEducation",
+        "BiggerBanks",
+        "FarmSubsidy",
+        "VigilantSentries",
+        "VeryShreddy",
+        "BackroomDeals",
+        "InlandRevenueStreams",
+        "ToArms",
+        "ThickerFoams",
+        "BetterSellDeals",
+        "HiValueMines",
+        "VeteranMonkeyTraining",
+        "GlobalAbilityCooldowns",
+        "BigTraps",
+        "HealthyBananas",
+        "BankDeposits",
+        "ParagonOfPower",
+        "HeroicReach",
+        "MoreSplody",
+        "AbilityDiscipline",
+        "HeroicVelocity",
+        "Scholarships",
+        "QuickHands",
+        "SelfTaughtHeroes",
+        "AbilityMastery",
+        "HeroFavors",
+        "EmpoweredHeroes",
+        "BigBloonBlueprints",
+        "MonkeysTogetherStrong",
+        "WeakPoint",
+    ]
 
     def __init__(self) -> None:
         mapdata = BloonsLocations()

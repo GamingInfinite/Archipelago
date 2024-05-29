@@ -10,6 +10,7 @@ from .Options import BloonsTD6Options, Difficulty
 from .Locations import BTD6Medal, BloonsLocations
 from .Items import (
     BTD6FillerItem,
+    BTD6KnowledgeUnlock,
     BTD6MapUnlock,
     BTD6MedalItem,
     BTD6MonkeyUnlock,
@@ -47,10 +48,10 @@ class BTD6World(World):
             self.options.min_map_diff.value, self.options.max_map_diff.value
         )
         self.random.shuffle(available_maps)
-        
+
         # Select Victory Map
         self.victory_map_name = available_maps.pop()
-        
+
         # Select and initialize starting maps
         for _ in range(self.options.starting_map_count.value):
             self.starting_maps.append(available_maps.pop())
@@ -85,19 +86,17 @@ class BTD6World(World):
         # Put the rest of the monkeys into storage for item generation
         self.remaining_monkeys.extend(available_towers)
 
-
-
     def create_item(self, name: str) -> Item:
         if name == self.bloonsItemData.MEDAL_NAME:
             return BTD6MedalItem(name, self.bloonsItemData.MEDAL_CODE, self.player)
 
-        if name == self.bloonsItemData.KNOWLEDGE_NAME:
-            return BTD6FillerItem(name, self.bloonsItemData.KNOWLEDGE_CODE, self.player)
-
         map = self.bloonsItemData.items.get(f"{name}-MUnlock")
         monkey = self.bloonsItemData.items.get(f"{name}-TUnlock")
+        knowledge = self.bloonsItemData.items.get(f"{name}-KUnlock")
         if map:
             return BTD6MapUnlock(f"{name}-MUnlock", map, self.player)
+        elif knowledge:
+            return BTD6KnowledgeUnlock(f"{name}-KUnlock", map, self.player)
         return BTD6MonkeyUnlock(f"{name}-TUnlock", monkey, self.player)
         # Remember to add Monkey Money later for future Hero Checks.
 
@@ -120,18 +119,29 @@ class BTD6World(World):
             self.multiworld.itempool.append(self.create_item(monkey))
             total_items -= 1
 
-        for _ in range(total_items):
-            self.multiworld.itempool.append(
-                self.create_item(BloonsItems.KNOWLEDGE_NAME)
-            )
-        
+        for knowledge in BloonsItems.knowledgeIDs:
+            self.multiworld.itempool.append(self.create_item(f"{knowledge}-KUnlock"))
+            total_items -= 1
+
     def create_regions(self) -> None:
+        # Define all main regions
         menu_region = Region("Menu", self.player, self.multiworld)
         map_select_region = Region("Map Select", self.player, self.multiworld)
         xp_region = Region("XP Progression", self.player, self.multiworld)
-        self.multiworld.regions += [menu_region, map_select_region, xp_region]
+        knowledge_region = Region("Knowledge Tree", self.player, self.multiworld)
+
+        #Add all the main regions to the multiworld
+        self.multiworld.regions += [
+            menu_region,
+            map_select_region,
+            xp_region,
+            knowledge_region,
+        ]
+
+        #Connect the regions to Menu (Menu is the only required region in Archipelago)
         menu_region.connect(map_select_region)
         menu_region.connect(xp_region)
+        menu_region.connect(knowledge_region)
 
         all_maps_copy = self.starting_maps.copy()
         incl_maps_copy = self.included_maps.copy()
@@ -139,6 +149,7 @@ class BTD6World(World):
         self.random.shuffle(incl_maps_copy)
         all_maps_copy.extend(incl_maps_copy)
 
+        #Locations and regions for maps
         for i in range(len(all_maps_copy)):
             name: str
             name = all_maps_copy[i]
@@ -206,9 +217,37 @@ class BTD6World(World):
                     BTD6Medal,
                 )
 
+        #Locations for Level ups
         for i in range(self.options.max_level.value - 1):
             name: str = f"Level {i+2}"
             xp_region.add_locations({name: self.bloonsMapData.locations[name]})
+
+        #Knowledge Specific Regions and Locations
+
+        primary_region = Region("Primary Knowledge", self.player, self.multiworld)
+        military_region = Region("Military Knowledge", self.player, self.multiworld)
+        magic_region = Region("Magic Knowledge", self.player, self.multiworld)
+        support_region = Region("Support Knowledge", self.player, self.multiworld)
+        heroes_region = Region("Hero Knowledge", self.player, self.multiworld)
+        powers_region = Region("Powers Region", self.player, self.multiworld)
+
+        self.multiworld.regions += [primary_region, military_region, magic_region, support_region, heroes_region, powers_region]
+        knowledge_region.connect(primary_region)
+        knowledge_region.connect(military_region)
+        knowledge_region.connect(magic_region)
+        knowledge_region.connect(support_region)
+        knowledge_region.connect(heroes_region)
+        knowledge_region.connect(powers_region)
+
+        knowledge_regions: List[Region] = []
+        for i in range(len(BloonsItems.knowledgeIDs)):
+            region = Region(BloonsItems.knowledgeIDs[i], self.player, self.multiworld)
+            region.add_locations(BloonsItems.knowledgeIDs[i])
+            knowledge_regions.append(region)
+        
+
+
+        self.multiworld.regions += knowledge_regions
 
     def set_rules(self) -> None:
         self.multiworld.completion_condition[self.player] = lambda state: state.has(
