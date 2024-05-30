@@ -1,8 +1,7 @@
 from typing import Dict, List, Optional
 from BaseClasses import Item, ItemClassification
 from worlds.bloonstd6.Locations import BloonsLocations
-from .Utils import Utils
-from .IDs import Shared
+from .Utils import Shared, Utils
 
 
 class BTD6MedalItem(Item):

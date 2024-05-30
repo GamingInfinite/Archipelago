@@ -1,7 +1,6 @@
 from typing import Dict, List, NamedTuple, Optional
 from BaseClasses import Location, Region
-from .Utils import Utils
-from .IDs import Shared
+from .Utils import Shared, Utils
 
 
 class MapData(NamedTuple):
@@ -20,15 +19,11 @@ class BTD6Medal(Location):
     ):
         super().__init__(player, name, code, parent)
 
-
-class BTD6Knowledge(Location):
+class BTD6Map(Location):
     game: str = "Bloons TD6"
 
-    def __init__(
-        self, player: int, name: str = "", code: int = None, parent: Region = None
-    ):
-        super().__init__(player, name, code, parent)
-
+class BTD6Knowledge(Location):
+    game: str = "Bloons TD^"
 
 class BTD6Level(Location):
     game: str = "Bloons TD6"
@@ -122,11 +117,10 @@ class BloonsLocations:
     }
 
     def __init__(self) -> None:
-        index = 0 + Utils.BASE_OFFSET
+        index = 70 + Utils.BASE_OFFSET
 
         for _, list in self.map_names_by_difficulty.items():
             for name in list:
-                self.locations[f"{name}-Unlock"] = index + 14
                 self.locations[f"{name}-Easy"] = index
                 self.locations[f"{name}-PrimaryOnly"] = index + 1
                 self.locations[f"{name}-Deflation"] = index + 2
@@ -141,17 +135,18 @@ class BloonsLocations:
                 self.locations[f"{name}-AlternateBloonRounds"] = index + 11
                 self.locations[f"{name}-Impoppable"] = index + 12
                 self.locations[f"{name}-Clicks"] = index + 13
+                self.locations[f"{name}-Unlock"] = index + 14
                 index += 15
 
         for i in range(149):
             self.locations[f"Level {i+2}"] = index
             index += 1
 
-        for item in Shared.knowledgeIDs:
-            self.locations[item] = index
+        for name in Shared.knowledgeIDs:
+            self.locations[f"{name}-Tree"] = index
             index += 1
 
-    def get_maps(self, minDiff=0, maxDiff=3) -> List[str]:
+    def get_maps(self, minDiff = 0, maxDiff = 3) -> List[str]:
         """List all Map IDs within the difficulties that can be played."""
         filtered_list: List[str] = []
 
@@ -163,3 +158,4 @@ class BloonsLocations:
             index += 1
 
         return filtered_list
+
