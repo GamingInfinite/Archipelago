@@ -1,6 +1,6 @@
 from typing import Dict, List, NamedTuple, Optional
 from BaseClasses import Location, Region
-from .Utils import Utils
+from .Utils import Shared, Utils
 
 
 class MapData(NamedTuple):
@@ -19,6 +19,11 @@ class BTD6Medal(Location):
     ):
         super().__init__(player, name, code, parent)
 
+class BTD6Map(Location):
+    game: str = "Bloons TD6"
+
+class BTD6Knowledge(Location):
+    game: str = "Bloons TD^"
 
 class BTD6Level(Location):
     game: str = "Bloons TD6"
@@ -130,10 +135,15 @@ class BloonsLocations:
                 self.locations[f"{name}-AlternateBloonRounds"] = index + 11
                 self.locations[f"{name}-Impoppable"] = index + 12
                 self.locations[f"{name}-Clicks"] = index + 13
-                index += 14
+                self.locations[f"{name}-Unlock"] = index + 14
+                index += 15
 
         for i in range(149):
             self.locations[f"Level {i+2}"] = index
+            index += 1
+
+        for name in Shared.knowledgeIDs:
+            self.locations[f"{name}-Tree"] = index
             index += 1
 
     def get_maps(self, minDiff = 0, maxDiff = 3) -> List[str]:

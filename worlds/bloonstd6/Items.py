@@ -1,7 +1,7 @@
 from typing import Dict, List, Optional
 from BaseClasses import Item, ItemClassification
 from worlds.bloonstd6.Locations import BloonsLocations
-from .Utils import Utils
+from .Utils import Shared, Utils
 
 
 class BTD6MedalItem(Item):
@@ -22,11 +22,20 @@ class BTD6MapUnlock(Item):
     def __init__(self, name: str, code: Optional[int], player: int):
         super().__init__(name, ItemClassification.progression, code, player)
 
+
 class BTD6MonkeyUnlock(Item):
     game: str = "Bloons TD6"
 
     def __init__(self, name: str, code: Optional[int], player: int):
         super().__init__(name, ItemClassification.useful, code, player)
+
+
+class BTD6KnowledgeUnlock(Item):
+    game: str = "Bloons TD6"
+
+    def __init__(self, name: str, code: Optional[int], player: int):
+        super().__init__(name, ItemClassification.useful, code, player)
+
 
 class BTD6FillerItem(Item):
     game: str = "Bloons TD6"
@@ -72,8 +81,6 @@ class BloonsItems:
         "BeastHandler",
     ]
 
-    knowledgeIDs: List[str] = ["NavalUpgrades", "AirforceUpgrades", "EliteMilitaryTraining", "EmergencyUnlock"]
-
     def __init__(self) -> None:
         mapdata = BloonsLocations()
         maplist = mapdata.get_maps()
@@ -88,7 +95,7 @@ class BloonsItems:
         for name in self.monkeyIDs:
             self.items[f"{name}-TUnlock"] = index
             index += 1
-        for name in self.knowledgeIDs:
+        for name in Shared.knowledgeIDs:
             self.items[f"{name}-KUnlock"] = index
             index += 1
 

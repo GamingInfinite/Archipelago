@@ -1,5 +1,6 @@
 import math
 from BaseClasses import Item, Region
+from Utils import visualize_regions
 from worlds.AutoWorld import World
 
 from typing import Any, ClassVar, Dict, List, Type
@@ -7,14 +8,16 @@ from Options import PerGameCommonOptions
 from worlds.generic.Rules import set_rule
 
 from .Options import BloonsTD6Options, Difficulty
-from .Locations import BTD6Medal, BloonsLocations
+from .Locations import BTD6Knowledge, BTD6Map, BTD6Medal, BloonsLocations
 from .Items import (
     BTD6FillerItem,
+    BTD6KnowledgeUnlock,
     BTD6MapUnlock,
     BTD6MedalItem,
     BTD6MonkeyUnlock,
     BloonsItems,
 )
+from .Utils import Shared
 
 
 class BTD6World(World):
@@ -47,10 +50,10 @@ class BTD6World(World):
             self.options.min_map_diff.value, self.options.max_map_diff.value
         )
         self.random.shuffle(available_maps)
-        
+
         # Select Victory Map
         self.victory_map_name = available_maps.pop()
-        
+
         # Select and initialize starting maps
         for _ in range(self.options.starting_map_count.value):
             self.starting_maps.append(available_maps.pop())
@@ -85,8 +88,6 @@ class BTD6World(World):
         # Put the rest of the monkeys into storage for item generation
         self.remaining_monkeys.extend(available_towers)
 
-
-
     def create_item(self, name: str) -> Item:
         if name == self.bloonsItemData.MEDAL_NAME:
             return BTD6MedalItem(name, self.bloonsItemData.MEDAL_CODE, self.player)
@@ -96,8 +97,11 @@ class BTD6World(World):
 
         map = self.bloonsItemData.items.get(f"{name}-MUnlock")
         monkey = self.bloonsItemData.items.get(f"{name}-TUnlock")
+        knowledge = self.bloonsItemData.items.get(f"{name}-KUnlock")
         if map:
             return BTD6MapUnlock(f"{name}-MUnlock", map, self.player)
+        if knowledge:
+            return BTD6KnowledgeUnlock(f"{name}-KUnlock", knowledge, self.player)
         return BTD6MonkeyUnlock(f"{name}-TUnlock", monkey, self.player)
         # Remember to add Monkey Money later for future Hero Checks.
 
@@ -106,32 +110,40 @@ class BTD6World(World):
         all_map_keys: List[str] = map_keys.copy()
         all_map_keys.extend(self.starting_maps.copy())
 
-        total_items = len(self.multiworld.get_unfilled_locations(self.player))
-
         for name in map_keys:
             self.multiworld.itempool.append(self.create_item(name))
-            total_items -= 1
 
         for _ in range(len(all_map_keys) * self.options.rando_difficulty.value):
             self.multiworld.itempool.append(self.create_item(BloonsItems.MEDAL_NAME))
-            total_items -= 1
 
         for monkey in self.remaining_monkeys:
             self.multiworld.itempool.append(self.create_item(monkey))
-            total_items -= 1
 
-        for _ in range(total_items):
+        for knowledge in Shared.knowledgeIDs:
+            self.multiworld.itempool.append(self.create_item(knowledge))
+
+        filler_items = len(self.multiworld.get_unfilled_locations(self.player)) - len(
+            self.multiworld.itempool
+        )
+        for _ in range(filler_items):
             self.multiworld.itempool.append(
                 self.create_item(BloonsItems.KNOWLEDGE_NAME)
             )
-        
+
     def create_regions(self) -> None:
         menu_region = Region("Menu", self.player, self.multiworld)
         map_select_region = Region("Map Select", self.player, self.multiworld)
         xp_region = Region("XP Progression", self.player, self.multiworld)
-        self.multiworld.regions += [menu_region, map_select_region, xp_region]
+        knowledge_region = Region("Knowledge Tree", self.player, self.multiworld)
+        self.multiworld.regions += [
+            menu_region,
+            map_select_region,
+            xp_region,
+            knowledge_region,
+        ]
         menu_region.connect(map_select_region)
         menu_region.connect(xp_region)
+        menu_region.connect(knowledge_region)
 
         all_maps_copy = self.starting_maps.copy()
         incl_maps_copy = self.included_maps.copy()
@@ -139,6 +151,7 @@ class BTD6World(World):
         self.random.shuffle(incl_maps_copy)
         all_maps_copy.extend(incl_maps_copy)
 
+        # region Map Locations
         for i in range(len(all_maps_copy)):
             name: str
             name = all_maps_copy[i]
@@ -149,6 +162,12 @@ class BTD6World(World):
                 region,
                 name,
                 lambda state, place=name + "-MUnlock": state.has(place, self.player),
+            )
+            region.add_locations(
+                {
+                    name + "-Unlock": self.bloonsMapData.locations[name + "-Unlock"],
+                },
+                BTD6Map,
             )
 
             # Handle Mode Based Checks
@@ -205,10 +224,228 @@ class BTD6World(World):
                     },
                     BTD6Medal,
                 )
+        # endregion
 
+        # region Level Locations
         for i in range(self.options.max_level.value - 1):
             name: str = f"Level {i+2}"
             xp_region.add_locations({name: self.bloonsMapData.locations[name]})
+        # endregion
+
+        # Knowledge Specific Regions and Locations
+        # region Create K Categories
+        primary_region = Region("Primary Knowledge", self.player, self.multiworld)
+        military_region = Region("Military Knowledge", self.player, self.multiworld)
+        magic_region = Region("Magic Knowledge", self.player, self.multiworld)
+        support_region = Region("Support Knowledge", self.player, self.multiworld)
+        heroes_region = Region("Hero Knowledge", self.player, self.multiworld)
+        powers_region = Region("Powers Region", self.player, self.multiworld)
+
+        self.multiworld.regions += [
+            primary_region,
+            military_region,
+            magic_region,
+            support_region,
+            heroes_region,
+            powers_region,
+        ]
+
+        knowledge_region.connect(primary_region)
+        knowledge_region.connect(military_region)
+        knowledge_region.connect(magic_region)
+        knowledge_region.connect(support_region)
+        knowledge_region.connect(heroes_region)
+        knowledge_region.connect(powers_region)
+        # endregion
+
+        # region Create K Locations for Logic
+        knowledge_regions: List[Region] = []
+        for name in Shared.knowledgeIDs:
+            region = Region(name, self.player, self.multiworld)
+            region.add_locations(
+                {
+                    name + "-Tree": self.bloonsMapData.locations[f"{name}-Tree"],
+                },
+                BTD6Knowledge,
+            )
+            knowledge_regions.append(region)
+        # endregion
+
+        self.multiworld.regions += knowledge_regions
+
+        def knowledge_connection(parent_region: Region | int, knowledge_id: int):
+            if type(parent_region) is int:
+                region = knowledge_regions[parent_region]
+                region.connect(
+                    knowledge_regions[knowledge_id],
+                    rule=lambda state, place=Shared.knowledgeIDs[
+                        knowledge_id
+                    ] + "-KUnlock": state.has(place, self.player),
+                )
+            else:
+                parent_region.connect(
+                    knowledge_regions[knowledge_id],
+                    rule=lambda state, place=Shared.knowledgeIDs[
+                        knowledge_id
+                    ] + "-KUnlock": state.has(place, self.player),
+                )
+
+        # region K. Tree Logic
+        # region Primary
+        # Primary Layer 1
+        knowledge_connection(primary_region, 0)  # Fast Tack Attacks
+        knowledge_connection(primary_region, 1)  # Increased Lifespan
+        knowledge_connection(primary_region, 2)  # Extra Dart Pops
+        # Primary Layer 2
+        knowledge_connection(0, 4)  # Hard Tacks
+        knowledge_connection(4, 3)  # Poppy Blades
+        knowledge_connection(0, 5)
+        knowledge_connection(1, 6)
+        knowledge_connection(1, 7)
+        knowledge_connection(2, 8)
+        # Primary Layer 3
+        knowledge_connection(3, 9)
+        knowledge_connection(4, 10)
+        knowledge_connection(5, 11)
+        knowledge_connection(6, 12)
+        knowledge_connection(7, 13)
+        knowledge_connection(13, 16)
+        knowledge_connection(8, 14)
+        knowledge_connection(8, 15)
+        # Primary Layer 4
+        knowledge_connection(10, 17)
+        knowledge_connection(11, 18)
+        knowledge_connection(13, 19)
+        knowledge_connection(14, 20)
+        # region Mega Mauler
+        knowledge_regions[18].connect(
+            knowledge_regions[21],
+            rule=lambda state, place1=Shared.knowledgeIDs[
+                21
+            ] + "-KUnlock", place2=Shared.knowledgeIDs[19]: state.has(
+                place1, self.player
+            )
+            and state.can_reach_region(place2, self.player),
+        )
+        knowledge_regions[19].connect(
+            knowledge_regions[21],
+            rule=lambda state, place1=Shared.knowledgeIDs[
+                21
+            ] + "-KUnlock", place2=Shared.knowledgeIDs[18]: state.has(
+                place1, self.player
+            )
+            and state.can_reach_region(place2, self.player),
+        )
+        # endregion
+        # Primary Layer 5
+        knowledge_connection(17, 22)
+        knowledge_connection(17, 23)
+        knowledge_connection(18, 24)
+        knowledge_connection(12, 25)
+        knowledge_connection(19, 26)
+        knowledge_connection(26, 28)
+        knowledge_connection(20, 27)
+        # Primary Layer 6
+        knowledge_connection(24, 29)
+        knowledge_connection(27, 30)
+        # region More Cash
+        knowledge_regions[29].connect(
+            knowledge_regions[31],
+            rule=lambda state, place1=Shared.knowledgeIDs[
+                31
+            ] + "-KUnlock", place2=Shared.knowledgeIDs[30]: state.has(
+                place1, self.player
+            )
+            and state.can_reach_region(place2, self.player),
+        )
+        knowledge_regions[30].connect(
+            knowledge_regions[31],
+            rule=lambda state, place1=Shared.knowledgeIDs[
+                31
+            ] + "-KUnlock", place2=Shared.knowledgeIDs[29]: state.has(
+                place1, self.player
+            )
+            and state.can_reach_region(place2, self.player),
+        )
+        # endregion
+        # endregion
+
+        # region Support
+        # Support Layer 1
+        knowledge_connection(support_region, 84)
+        knowledge_connection(support_region, 85)
+        # Support Layer 2
+        knowledge_connection(84, 86)
+        knowledge_connection(84, 87)
+        knowledge_connection(85, 88)
+        # Support Layer 3
+        knowledge_connection(86, 90)
+        knowledge_connection(87, 91)
+        knowledge_connection(85, 92)
+        knowledge_connection(support_region, 89)
+        # Support Layer 4
+        knowledge_connection(90, 94)
+        knowledge_connection(91, 95)
+        knowledge_connection(92, 97)
+        knowledge_connection(88, 93)
+        knowledge_connection(89, 96)
+        # Support Layer 5
+        knowledge_connection(94, 98)
+        knowledge_connection(95, 103)
+        knowledge_connection(97, 102)
+        knowledge_connection(93, 99)
+        knowledge_connection(96, 100)
+        knowledge_connection(96, 101)
+        # Support Layer 6
+        knowledge_connection(98, 104)
+        knowledge_connection(100, 105)
+        # endregion
+        # region Heroes
+        # Heroes Layer 1
+        knowledge_connection(heroes_region, 106)
+        knowledge_connection(heroes_region, 107)
+        knowledge_connection(heroes_region, 108)
+        # Heroes Layer 2
+        knowledge_connection(106, 109)
+        knowledge_connection(107, 110)
+        # Heroes Layer 3
+        knowledge_connection(109, 111)
+        knowledge_connection(110, 112)
+        knowledge_connection(108, 113)
+        # Heroes Layer 4
+        # region Hero Favors
+        knowledge_regions[111].connect(
+            knowledge_regions[114],
+            rule=lambda state, place1=Shared.knowledgeIDs[
+                114
+            ] + "-KUnlock", place2=Shared.knowledgeIDs[112]: state.has(
+                place1, self.player
+            )
+            and state.can_reach_region(place2, self.player),
+        )
+        knowledge_regions[112].connect(
+            knowledge_regions[114],
+            rule=lambda state, place1=Shared.knowledgeIDs[
+                114
+            ] + "-KUnlock", place2=Shared.knowledgeIDs[111]: state.has(
+                place1, self.player
+            )
+            and state.can_reach_region(place2, self.player),
+        )
+        # endregion
+        # Heroes Layer 5
+        knowledge_connection(114, 115)
+        knowledge_connection(113, 116)
+        # Heroes Layer 6
+        knowledge_connection(115, 117)
+        knowledge_connection(116, 118)
+        # endregion
+        # endregion
+
+        visualize_regions(
+            self.multiworld.get_region("Menu", self.player),
+            "output/regionmap.puml",
+        )
 
     def set_rules(self) -> None:
         self.multiworld.completion_condition[self.player] = lambda state: state.has(
