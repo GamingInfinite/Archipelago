@@ -62,12 +62,12 @@ class BloonsLocations:
             "Logs",
         ],
         "intermediate": [
+            "SulfurSprings",
             "WaterPark",
             "Polyphemus",
             "CoveredGarden",
             "Quarry",
             "QuietStreet",
-            "SulfurSprings",
             "BloonariusPrime",
             "Balance",
             "Encrypted",
