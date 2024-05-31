@@ -19,11 +19,14 @@ class BTD6Medal(Location):
     ):
         super().__init__(player, name, code, parent)
 
+
 class BTD6Map(Location):
     game: str = "Bloons TD6"
 
+
 class BTD6Knowledge(Location):
     game: str = "Bloons TD^"
+
 
 class BTD6Level(Location):
     game: str = "Bloons TD6"
@@ -37,6 +40,7 @@ class BloonsLocations:
             "Tutorial",
             "InTheLoop",
             "MiddleOfTheRoad",
+            "Tinkerton",
             "TreeStump",
             "TownCentre",
             "OneTwoTree",
@@ -132,7 +136,7 @@ class BloonsLocations:
                 self.locations[f"{name}-MagicOnly"] = index + 8
                 self.locations[f"{name}-DoubleMoabHealth"] = index + 9
                 self.locations[f"{name}-HalfCash"] = index + 10
-                self.locations[f"{name}-AlternateBloonRounds"] = index + 11
+                self.locations[f"{name}-AlternateBloonsRounds"] = index + 11
                 self.locations[f"{name}-Impoppable"] = index + 12
                 self.locations[f"{name}-Clicks"] = index + 13
                 self.locations[f"{name}-Unlock"] = index + 14
@@ -146,7 +150,7 @@ class BloonsLocations:
             self.locations[f"{name}-Tree"] = index
             index += 1
 
-    def get_maps(self, minDiff = 0, maxDiff = 3) -> List[str]:
+    def get_maps(self, minDiff=0, maxDiff=3) -> List[str]:
         """List all Map IDs within the difficulties that can be played."""
         filtered_list: List[str] = []
 
@@ -158,4 +162,3 @@ class BloonsLocations:
             index += 1
 
         return filtered_list
-

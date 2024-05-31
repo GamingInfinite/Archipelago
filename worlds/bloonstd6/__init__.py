@@ -92,8 +92,8 @@ class BTD6World(World):
         if name == self.bloonsItemData.MEDAL_NAME:
             return BTD6MedalItem(name, self.bloonsItemData.MEDAL_CODE, self.player)
 
-        if name == self.bloonsItemData.KNOWLEDGE_NAME:
-            return BTD6FillerItem(name, self.bloonsItemData.KNOWLEDGE_CODE, self.player)
+        if name == self.bloonsItemData.MONEY_NAME:
+            return BTD6FillerItem(name, self.bloonsItemData.MONEY_CODE, self.player)
 
         map = self.bloonsItemData.items.get(f"{name}-MUnlock")
         monkey = self.bloonsItemData.items.get(f"{name}-TUnlock")
@@ -127,7 +127,7 @@ class BTD6World(World):
         )
         for _ in range(filler_items):
             self.multiworld.itempool.append(
-                self.create_item(BloonsItems.KNOWLEDGE_NAME)
+                self.create_item(BloonsItems.MONEY_NAME)
             )
 
     def create_regions(self) -> None:
@@ -369,7 +369,170 @@ class BTD6World(World):
         )
         # endregion
         # endregion
-
+        # region Military
+        # Military Layer 1
+        knowledge_connection(military_region, 32)
+        knowledge_connection(military_region, 33)
+        knowledge_connection(military_region, 34)
+        knowledge_connection(military_region, 35)
+        # Military Layer 2
+        knowledge_connection(32, 36)
+        knowledge_connection(33, 37)
+        knowledge_connection(34, 38)
+        # Military Layer 3
+        knowledge_connection(military_region, 39)
+        knowledge_connection(32, 40)
+        knowledge_connection(36, 41)
+        knowledge_connection(37, 42)
+        knowledge_connection(33, 43)
+        knowledge_connection(38, 44)
+        knowledge_connection(35, 45)
+        # Military Layer 4
+        knowledge_connection(40, 46)
+        knowledge_connection(41, 47)
+        knowledge_connection(42, 48)
+        knowledge_connection(39, 49)
+        knowledge_connection(45, 50)
+        # Military Layer 5
+        # region Flanking Maneuvers
+        knowledge_regions[46].connect(
+            knowledge_regions[56],
+            rule=lambda state, place1=Shared.knowledgeIDs[
+                56
+            ] + "-KUnlock", place2=Shared.knowledgeIDs[47]: state.has(
+                place1, self.player
+            )
+            and state.can_reach_region(place2, self.player),
+        )
+        knowledge_regions[47].connect(
+            knowledge_regions[56],
+            rule=lambda state, place1=Shared.knowledgeIDs[
+                56
+            ] + "-KUnlock", place2=Shared.knowledgeIDs[46]: state.has(
+                place1, self.player
+            )
+            and state.can_reach_region(place2, self.player),
+        )
+        # endregion
+        knowledge_connection(48, 52)
+        knowledge_connection(52, 55)
+        knowledge_connection(43, 51)
+        knowledge_connection(49, 54)
+        knowledge_connection(44, 53)
+        # Military Layer 6
+        knowledge_connection(56, 57)
+        knowledge_connection(47, 58)
+        knowledge_connection(51, 59)
+        # region Advanced Logistics
+        knowledge_regions[59].connect(
+            knowledge_regions[60],
+            rule=lambda state, place1=Shared.knowledgeIDs[
+                60
+            ] + "-KUnlock", place2=Shared.knowledgeIDs[52]: state.has(
+                place1, self.player
+            )
+            and state.can_reach_region(place2, self.player),
+        )
+        knowledge_regions[52].connect(
+            knowledge_regions[60],
+            rule=lambda state, place1=Shared.knowledgeIDs[
+                60
+            ] + "-KUnlock", place2=Shared.knowledgeIDs[59]: state.has(
+                place1, self.player
+            )
+            and state.can_reach_region(place2, self.player),
+        )
+        # endregion
+        # Military Layer 7
+        # region Big Bloon Sabotage
+        knowledge_regions[57].connect(
+            knowledge_regions[61],
+            rule=lambda state, place1=Shared.knowledgeIDs[
+                61
+            ] + "-KUnlock", place2=Shared.knowledgeIDs[53]: state.has(
+                place1, self.player
+            )
+            and state.can_reach_region(place2, self.player),
+        )
+        knowledge_regions[53].connect(
+            knowledge_regions[61],
+            rule=lambda state, place1=Shared.knowledgeIDs[
+                61
+            ] + "-KUnlock", place2=Shared.knowledgeIDs[57]: state.has(
+                place1, self.player
+            )
+            and state.can_reach_region(place2, self.player),
+        )
+        # endregion
+        # endregion
+        # region Magic
+        # Magic Layer 1
+        knowledge_connection(magic_region, 62)
+        knowledge_connection(magic_region, 64)
+        knowledge_connection(magic_region, 63)
+        # Magic Layer 2
+        knowledge_connection(62, 65)
+        knowledge_connection(62, 66)
+        knowledge_connection(64, 67)
+        knowledge_connection(63, 68)
+        knowledge_connection(68, 69)
+        # Magic Layer 3
+        knowledge_connection(65, 70)
+        knowledge_connection(66, 71)
+        knowledge_connection(67, 72)
+        knowledge_connection(68, 73)
+        # region Flame Jet
+        knowledge_regions[67].connect(
+            knowledge_regions[78],
+            rule=lambda state, place1=Shared.knowledgeIDs[
+                78
+            ] + "-KUnlock", place2=Shared.knowledgeIDs[63]: state.has(
+                place1, self.player
+            )
+            and state.can_reach_region(place2, self.player),
+        )
+        knowledge_regions[63].connect(
+            knowledge_regions[78],
+            rule=lambda state, place1=Shared.knowledgeIDs[
+                78
+            ] + "-KUnlock", place2=Shared.knowledgeIDs[67]: state.has(
+                place1, self.player
+            )
+            and state.can_reach_region(place2, self.player),
+        )
+        # endregion
+        # Magic Layer 4
+        knowledge_connection(71, 74)
+        knowledge_connection(72, 77)
+        knowledge_connection(73, 76)
+        knowledge_connection(78, 75)
+        # Magic Layer 5
+        knowledge_connection(77, 81)
+        knowledge_connection(74, 80)
+        knowledge_connection(70, 79)
+        # Magic Layer 6
+        # region Tiny Tornadoes
+        knowledge_regions[79].connect(
+            knowledge_regions[83],
+            rule=lambda state, place1=Shared.knowledgeIDs[
+                83
+            ] + "-KUnlock", place2=Shared.knowledgeIDs[81]: state.has(
+                place1, self.player
+            )
+            and state.can_reach_region(place2, self.player),
+        )
+        knowledge_regions[81].connect(
+            knowledge_regions[83],
+            rule=lambda state, place1=Shared.knowledgeIDs[
+                83
+            ] + "-KUnlock", place2=Shared.knowledgeIDs[79]: state.has(
+                place1, self.player
+            )
+            and state.can_reach_region(place2, self.player),
+        )
+        # endregion
+        knowledge_connection(75, 82)
+        # endregion
         # region Support
         # Support Layer 1
         knowledge_connection(support_region, 84)
@@ -440,12 +603,54 @@ class BTD6World(World):
         knowledge_connection(115, 117)
         knowledge_connection(116, 118)
         # endregion
+        # region Powers
+        # Powers Layer 1
+        knowledge_connection(powers_region, 119)
+        knowledge_connection(powers_region, 120)
+        knowledge_connection(powers_region, 121)
+        # Powers Layer 2
+        knowledge_connection(119, 122)
+        knowledge_connection(120, 123)
+        knowledge_connection(121, 124)
+        # Powers Layer 3
+        knowledge_connection(122, 125)
+        knowledge_connection(123, 126)
+        # region Powerful Monkey Storm
+        knowledge_regions[124].connect(
+            knowledge_regions[132],
+            rule=lambda state, place1=Shared.knowledgeIDs[
+                132
+            ] + "-KUnlock", place2=Shared.knowledgeIDs[126]: state.has(
+                place1, self.player
+            )
+            and state.can_reach_region(place2, self.player),
+        )
+        knowledge_regions[126].connect(
+            knowledge_regions[132],
+            rule=lambda state, place1=Shared.knowledgeIDs[
+                132
+            ] + "-KUnlock", place2=Shared.knowledgeIDs[124]: state.has(
+                place1, self.player
+            )
+            and state.can_reach_region(place2, self.player),
+        )
+        # endregion
+        # Powers Layer 4
+        knowledge_connection(125, 129)
+        knowledge_connection(126, 127)
+        knowledge_connection(132, 128)
+        # Powers Layer 5
+        knowledge_connection(128, 130)
+        knowledge_connection(128, 131)
+        # Powers Layer 6
+        knowledge_connection(130, 133)
+        # endregion
         # endregion
 
-        visualize_regions(
-            self.multiworld.get_region("Menu", self.player),
-            "output/regionmap.puml",
-        )
+        # visualize_regions(
+        #     self.multiworld.get_region("Menu", self.player),
+        #     "output/regionmap.puml",
+        # )
 
     def set_rules(self) -> None:
         self.multiworld.completion_condition[self.player] = lambda state: state.has(

@@ -34,7 +34,7 @@ class BTD6KnowledgeUnlock(Item):
     game: str = "Bloons TD6"
 
     def __init__(self, name: str, code: Optional[int], player: int):
-        super().__init__(name, ItemClassification.useful, code, player)
+        super().__init__(name, ItemClassification.progression, code, player)
 
 
 class BTD6FillerItem(Item):
@@ -48,8 +48,8 @@ class BloonsItems:
     MEDAL_NAME: str = "Medal"
     MEDAL_CODE: int = Utils.BASE_OFFSET
 
-    KNOWLEDGE_NAME: str = "Monkey Knowledge"
-    KNOWLEDGE_CODE: int = Utils.BASE_OFFSET + 1
+    MONEY_NAME: str = "Monkey Money"
+    MONEY_CODE: int = Utils.BASE_OFFSET + 1
 
     item_offset = 2 + Utils.BASE_OFFSET
 
@@ -86,7 +86,7 @@ class BloonsItems:
         maplist = mapdata.get_maps()
 
         self.items[self.MEDAL_NAME] = self.MEDAL_CODE
-        self.items[self.KNOWLEDGE_NAME] = self.KNOWLEDGE_CODE
+        self.items[self.MONEY_NAME] = self.MONEY_CODE
 
         index = self.item_offset
         for name in maplist:
