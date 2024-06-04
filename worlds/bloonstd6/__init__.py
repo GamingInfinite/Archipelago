@@ -218,8 +218,8 @@ class BTD6World(World):
                         name
                         + "-HalfCash": self.bloonsMapData.locations[name + "-HalfCash"],
                         name
-                        + "-AlternateBloonRounds": self.bloonsMapData.locations[
-                            name + "-AlternateBloonRounds"
+                        + "-AlternateBloonsRounds": self.bloonsMapData.locations[
+                            name + "-AlternateBloonsRounds"
                         ],
                     },
                     BTD6Medal,
