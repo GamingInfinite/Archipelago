@@ -126,9 +126,7 @@ class BTD6World(World):
             self.multiworld.itempool
         )
         for _ in range(filler_items):
-            self.multiworld.itempool.append(
-                self.create_item(BloonsItems.MONEY_NAME)
-            )
+            self.multiworld.itempool.append(self.create_item(BloonsItems.MONEY_NAME))
 
     def create_regions(self) -> None:
         menu_region = Region("Menu", self.player, self.multiworld)
@@ -283,7 +281,8 @@ class BTD6World(World):
                     ] + "-KUnlock": state.has(place, self.player),
                 )
             else:
-                parent_region.connect(
+                region: Region = parent_region
+                region.connect(
                     knowledge_regions[knowledge_id],
                     rule=lambda state, place=Shared.knowledgeIDs[
                         knowledge_id
@@ -318,24 +317,8 @@ class BTD6World(World):
         knowledge_connection(13, 19)
         knowledge_connection(14, 20)
         # region Mega Mauler
-        knowledge_regions[18].connect(
-            knowledge_regions[21],
-            rule=lambda state, place1=Shared.knowledgeIDs[
-                21
-            ] + "-KUnlock", place2=Shared.knowledgeIDs[19]: state.has(
-                place1, self.player
-            )
-            and state.can_reach_region(place2, self.player),
-        )
-        knowledge_regions[19].connect(
-            knowledge_regions[21],
-            rule=lambda state, place1=Shared.knowledgeIDs[
-                21
-            ] + "-KUnlock", place2=Shared.knowledgeIDs[18]: state.has(
-                place1, self.player
-            )
-            and state.can_reach_region(place2, self.player),
-        )
+        knowledge_connection(18, 21)
+        knowledge_connection(19, 21)
         # endregion
         # Primary Layer 5
         knowledge_connection(17, 22)
@@ -349,24 +332,8 @@ class BTD6World(World):
         knowledge_connection(24, 29)
         knowledge_connection(27, 30)
         # region More Cash
-        knowledge_regions[29].connect(
-            knowledge_regions[31],
-            rule=lambda state, place1=Shared.knowledgeIDs[
-                31
-            ] + "-KUnlock", place2=Shared.knowledgeIDs[30]: state.has(
-                place1, self.player
-            )
-            and state.can_reach_region(place2, self.player),
-        )
-        knowledge_regions[30].connect(
-            knowledge_regions[31],
-            rule=lambda state, place1=Shared.knowledgeIDs[
-                31
-            ] + "-KUnlock", place2=Shared.knowledgeIDs[29]: state.has(
-                place1, self.player
-            )
-            and state.can_reach_region(place2, self.player),
-        )
+        knowledge_connection(29, 31)
+        knowledge_connection(30, 31)
         # endregion
         # endregion
         # region Military
@@ -395,24 +362,8 @@ class BTD6World(World):
         knowledge_connection(45, 50)
         # Military Layer 5
         # region Flanking Maneuvers
-        knowledge_regions[46].connect(
-            knowledge_regions[56],
-            rule=lambda state, place1=Shared.knowledgeIDs[
-                56
-            ] + "-KUnlock", place2=Shared.knowledgeIDs[47]: state.has(
-                place1, self.player
-            )
-            and state.can_reach_region(place2, self.player),
-        )
-        knowledge_regions[47].connect(
-            knowledge_regions[56],
-            rule=lambda state, place1=Shared.knowledgeIDs[
-                56
-            ] + "-KUnlock", place2=Shared.knowledgeIDs[46]: state.has(
-                place1, self.player
-            )
-            and state.can_reach_region(place2, self.player),
-        )
+        knowledge_connection(46, 56)
+        knowledge_connection(47, 56)
         # endregion
         knowledge_connection(48, 52)
         knowledge_connection(52, 55)
@@ -424,45 +375,13 @@ class BTD6World(World):
         knowledge_connection(47, 58)
         knowledge_connection(51, 59)
         # region Advanced Logistics
-        knowledge_regions[59].connect(
-            knowledge_regions[60],
-            rule=lambda state, place1=Shared.knowledgeIDs[
-                60
-            ] + "-KUnlock", place2=Shared.knowledgeIDs[52]: state.has(
-                place1, self.player
-            )
-            and state.can_reach_region(place2, self.player),
-        )
-        knowledge_regions[52].connect(
-            knowledge_regions[60],
-            rule=lambda state, place1=Shared.knowledgeIDs[
-                60
-            ] + "-KUnlock", place2=Shared.knowledgeIDs[59]: state.has(
-                place1, self.player
-            )
-            and state.can_reach_region(place2, self.player),
-        )
+        knowledge_connection(59, 60)
+        knowledge_connection(52, 60)
         # endregion
         # Military Layer 7
         # region Big Bloon Sabotage
-        knowledge_regions[57].connect(
-            knowledge_regions[61],
-            rule=lambda state, place1=Shared.knowledgeIDs[
-                61
-            ] + "-KUnlock", place2=Shared.knowledgeIDs[53]: state.has(
-                place1, self.player
-            )
-            and state.can_reach_region(place2, self.player),
-        )
-        knowledge_regions[53].connect(
-            knowledge_regions[61],
-            rule=lambda state, place1=Shared.knowledgeIDs[
-                61
-            ] + "-KUnlock", place2=Shared.knowledgeIDs[57]: state.has(
-                place1, self.player
-            )
-            and state.can_reach_region(place2, self.player),
-        )
+        knowledge_connection(57, 61)
+        knowledge_connection(53, 61)
         # endregion
         # endregion
         # region Magic
@@ -482,24 +401,8 @@ class BTD6World(World):
         knowledge_connection(67, 72)
         knowledge_connection(68, 73)
         # region Flame Jet
-        knowledge_regions[67].connect(
-            knowledge_regions[78],
-            rule=lambda state, place1=Shared.knowledgeIDs[
-                78
-            ] + "-KUnlock", place2=Shared.knowledgeIDs[63]: state.has(
-                place1, self.player
-            )
-            and state.can_reach_region(place2, self.player),
-        )
-        knowledge_regions[63].connect(
-            knowledge_regions[78],
-            rule=lambda state, place1=Shared.knowledgeIDs[
-                78
-            ] + "-KUnlock", place2=Shared.knowledgeIDs[67]: state.has(
-                place1, self.player
-            )
-            and state.can_reach_region(place2, self.player),
-        )
+        knowledge_connection(67, 78)
+        knowledge_connection(63, 78)
         # endregion
         # Magic Layer 4
         knowledge_connection(71, 74)
@@ -512,24 +415,8 @@ class BTD6World(World):
         knowledge_connection(70, 79)
         # Magic Layer 6
         # region Tiny Tornadoes
-        knowledge_regions[79].connect(
-            knowledge_regions[83],
-            rule=lambda state, place1=Shared.knowledgeIDs[
-                83
-            ] + "-KUnlock", place2=Shared.knowledgeIDs[81]: state.has(
-                place1, self.player
-            )
-            and state.can_reach_region(place2, self.player),
-        )
-        knowledge_regions[81].connect(
-            knowledge_regions[83],
-            rule=lambda state, place1=Shared.knowledgeIDs[
-                83
-            ] + "-KUnlock", place2=Shared.knowledgeIDs[79]: state.has(
-                place1, self.player
-            )
-            and state.can_reach_region(place2, self.player),
-        )
+        knowledge_connection(79, 83)
+        knowledge_connection(81, 83)
         # endregion
         knowledge_connection(75, 82)
         # endregion
@@ -577,24 +464,8 @@ class BTD6World(World):
         knowledge_connection(108, 113)
         # Heroes Layer 4
         # region Hero Favors
-        knowledge_regions[111].connect(
-            knowledge_regions[114],
-            rule=lambda state, place1=Shared.knowledgeIDs[
-                114
-            ] + "-KUnlock", place2=Shared.knowledgeIDs[112]: state.has(
-                place1, self.player
-            )
-            and state.can_reach_region(place2, self.player),
-        )
-        knowledge_regions[112].connect(
-            knowledge_regions[114],
-            rule=lambda state, place1=Shared.knowledgeIDs[
-                114
-            ] + "-KUnlock", place2=Shared.knowledgeIDs[111]: state.has(
-                place1, self.player
-            )
-            and state.can_reach_region(place2, self.player),
-        )
+        knowledge_connection(111, 114)
+        knowledge_connection(112, 114)
         # endregion
         # Heroes Layer 5
         knowledge_connection(114, 115)
@@ -616,24 +487,8 @@ class BTD6World(World):
         knowledge_connection(122, 125)
         knowledge_connection(123, 126)
         # region Powerful Monkey Storm
-        knowledge_regions[124].connect(
-            knowledge_regions[132],
-            rule=lambda state, place1=Shared.knowledgeIDs[
-                132
-            ] + "-KUnlock", place2=Shared.knowledgeIDs[126]: state.has(
-                place1, self.player
-            )
-            and state.can_reach_region(place2, self.player),
-        )
-        knowledge_regions[126].connect(
-            knowledge_regions[132],
-            rule=lambda state, place1=Shared.knowledgeIDs[
-                132
-            ] + "-KUnlock", place2=Shared.knowledgeIDs[124]: state.has(
-                place1, self.player
-            )
-            and state.can_reach_region(place2, self.player),
-        )
+        knowledge_connection(124, 132)
+        knowledge_connection(126, 132)
         # endregion
         # Powers Layer 4
         knowledge_connection(125, 129)
