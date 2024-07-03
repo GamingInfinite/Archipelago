@@ -110,21 +110,25 @@ class BTD6World(World):
         all_map_keys: List[str] = map_keys.copy()
         all_map_keys.extend(self.starting_maps.copy())
 
+        item_count = 0
+
         for name in map_keys:
             self.multiworld.itempool.append(self.create_item(name))
+            item_count += 1
 
         for _ in range(len(all_map_keys) * self.options.rando_difficulty.value):
             self.multiworld.itempool.append(self.create_item(BloonsItems.MEDAL_NAME))
+            item_count += 1
 
         for monkey in self.remaining_monkeys:
             self.multiworld.itempool.append(self.create_item(monkey))
+            item_count += 1
 
         for knowledge in Shared.knowledgeIDs:
             self.multiworld.itempool.append(self.create_item(knowledge))
+            item_count += 1
 
-        filler_items = len(self.multiworld.get_unfilled_locations(self.player)) - len(
-            self.multiworld.itempool
-        )
+        filler_items = len(self.multiworld.get_unfilled_locations(self.player)) - item_count
         for _ in range(filler_items):
             self.multiworld.itempool.append(self.create_item(BloonsItems.MONEY_NAME))
 
