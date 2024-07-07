@@ -1,6 +1,6 @@
 from typing import Dict, List, NamedTuple, Optional
 from BaseClasses import Location, Region
-from .Utils import Shared, Utils
+from .Utils import Shared
 
 
 class MapData(NamedTuple):
@@ -120,8 +120,10 @@ class BloonsLocations:
         ],
     }
 
+    auto_location_groups: Dict[str, set] = {}
+
     def __init__(self) -> None:
-        index = 70 + Utils.BASE_OFFSET
+        index = 0
 
         for _, list in self.map_names_by_difficulty.items():
             for name in list:
@@ -149,6 +151,9 @@ class BloonsLocations:
         for name in Shared.knowledgeIDs:
             self.locations[f"{name}-Tree"] = index
             index += 1
+
+        self.auto_location_groups["knowledge"] = set(name for names in self.locations.keys() if names.endswith("-Tree"))
+        self.auto_location_groups["level"] = set(name for names in self.locations.keys() if names.startswith("Level "))
 
     def get_maps(self, minDiff=0, maxDiff=3) -> List[str]:
         """List all Map IDs within the difficulties that can be played."""

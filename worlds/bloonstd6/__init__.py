@@ -36,6 +36,9 @@ class BTD6World(World):
 
     item_name_to_id = {name: code for name, code in bloonsItemData.items.items()}
     location_name_to_id = {name: code for name, code in bloonsMapData.locations.items()}
+    
+    item_name_groups = bloonsItemData.auto_item_groups
+    location_name_groups = bloonsMapData.auto_location_groups
 
     def generate_early(self) -> None:
         ## Initialize per-player instances of variables:

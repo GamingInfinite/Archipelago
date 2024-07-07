@@ -1,10 +1,5 @@
 from typing import List
 
-
-class Utils:
-    BASE_OFFSET = 120000000
-
-
 class Shared:
     knowledgeIDs: List[str] = [
         "FastTackAttacks",

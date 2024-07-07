@@ -1,7 +1,7 @@
 from typing import Dict, List, Optional
 from BaseClasses import Item, ItemClassification
 from worlds.bloonstd6.Locations import BloonsLocations
-from .Utils import Shared, Utils
+from .Utils import Shared
 
 
 class BTD6MedalItem(Item):
@@ -46,14 +46,15 @@ class BTD6FillerItem(Item):
 
 class BloonsItems:
     MEDAL_NAME: str = "Medal"
-    MEDAL_CODE: int = Utils.BASE_OFFSET
+    MEDAL_CODE: int = 0
 
     MONEY_NAME: str = "Monkey Money"
-    MONEY_CODE: int = Utils.BASE_OFFSET + 1
+    MONEY_CODE: int = 1
 
-    item_offset = 2 + Utils.BASE_OFFSET
+    item_offset = 2
 
     items: Dict[str, int] = {}
+    auto_item_groups: Dict[str, set] = {}
 
     monkeyIDs: List[str] = [
         "DartMonkey",
@@ -98,6 +99,16 @@ class BloonsItems:
         for name in Shared.knowledgeIDs:
             self.items[f"{name}-KUnlock"] = index
             index += 1
+
+        self.auto_item_groups["maps"] = set(
+            name for names in self.items.keys() if names.endswith("-MUnlock")
+        )
+        self.auto_item_groups["towers"] = set(
+            name for names in self.items.keys() if names.endswith("-TUnlock")
+        )
+        self.auto_item_groups["knowledge"] = set(
+            name for names in self.items.keys() if names.endswith("-KUnlock")
+        )
 
     level_rewards = [
         "Boomerang Monkey",
