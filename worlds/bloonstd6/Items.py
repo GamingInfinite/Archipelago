@@ -46,12 +46,12 @@ class BTD6FillerItem(Item):
 
 class BloonsItems:
     MEDAL_NAME: str = "Medal"
-    MEDAL_CODE: int = 0
+    MEDAL_CODE: int = 1
 
     MONEY_NAME: str = "Monkey Money"
-    MONEY_CODE: int = 1
+    MONEY_CODE: int = 2
 
-    item_offset = 2
+    item_offset = 3
 
     items: Dict[str, int] = {}
     auto_item_groups: Dict[str, set] = {}
