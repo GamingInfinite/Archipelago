@@ -75,6 +75,7 @@ class BloonsItems:
         "NinjaMonkey",
         "Alchemist",
         "Druid",
+        "Mermonkey",
         "BananaFarm",
         "SpikeFactory",
         "MonkeyVillage",
@@ -109,28 +110,3 @@ class BloonsItems:
         self.auto_item_groups["knowledge"] = set(
             name for names in self.items.keys() if names.endswith("-KUnlock")
         )
-
-    level_rewards = [
-        "Boomerang Monkey",
-        "Bomb Shooter",
-        "Tack Shooter",
-        "Ice Monkey",
-        "Glue Gunner",
-        "Sniper Monkey",
-        "Monkey Sub",
-        "Monkey Buccaneer",
-        "Monkey Ace",
-        "Mortar Monkey",
-        "Gwendolin",
-        "Wizard Monkey",
-        "Super Monkey",
-        "Ninja Monkey",
-        "Alchemist",
-        "Druid",
-        "Striker Jones",
-        "Banana Farm",
-        "Spike Factory",
-        "Monkey Village",
-        "Engineer Monkey",
-        "Obyn Greenfoot",
-    ]

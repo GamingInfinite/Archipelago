@@ -62,6 +62,7 @@ class BloonsLocations:
             "Logs",
         ],
         "intermediate": [
+            "LuminousCove",
             "SulfurSprings",
             "WaterPark",
             "Polyphemus",
