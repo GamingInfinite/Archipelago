@@ -29,6 +29,12 @@ class BTD6MonkeyUnlock(Item):
     def __init__(self, name: str, code: Optional[int], player: int):
         super().__init__(name, ItemClassification.useful, code, player)
 
+class BTD6HeroUnlock(Item):
+    game: str = "Bloons TD6"
+
+    def __init__(self, name: str, code: Optional[int], player: int):
+        super().__init__(name, ItemClassification.useful, code, player)
+
 
 class BTD6KnowledgeUnlock(Item):
     game: str = "Bloons TD6"
@@ -99,6 +105,9 @@ class BloonsItems:
             index += 1
         for name in Shared.knowledgeIDs:
             self.items[f"{name}-KUnlock"] = index
+            index += 1
+        for name in Shared.heroIDs:
+            self.items[f"{name}-HUnlock"] = index
             index += 1
 
         self.auto_item_groups["maps"] = set(

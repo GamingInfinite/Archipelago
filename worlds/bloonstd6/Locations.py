@@ -10,22 +10,16 @@ class MapData(NamedTuple):
 class BTD6Medal(Location):
     game: str = "Bloons TD6"
 
-    def __init__(
-        self,
-        player: int,
-        name: str = "",
-        code: int | None = None,
-        parent: Region | None = None,
-    ):
-        super().__init__(player, name, code, parent)
-
-
+    
 class BTD6Map(Location):
+    game: str = "Bloons TD6"
+
+class BTD6Hero(Location):
     game: str = "Bloons TD6"
 
 
 class BTD6Knowledge(Location):
-    game: str = "Bloons TD^"
+    game: str = "Bloons TD6"
 
 
 class BTD6Level(Location):
@@ -144,6 +138,10 @@ class BloonsLocations:
                 self.locations[f"{name}-Clicks"] = index + 13
                 self.locations[f"{name}-Unlock"] = index + 14
                 index += 15
+        
+        for name in Shared.heroIDs:
+            self.locations[f"{name}"] = index
+            index += 1
 
         for i in range(149):
             self.locations[f"Level {i+2}"] = index
