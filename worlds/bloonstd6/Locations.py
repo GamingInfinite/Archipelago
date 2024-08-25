@@ -24,8 +24,12 @@ class BTD6Map(Location):
     game: str = "Bloons TD6"
 
 
+class BTD6Hero(Location):
+    game: str = "Bloons TD6"
+
+
 class BTD6Knowledge(Location):
-    game: str = "Bloons TD^"
+    game: str = "Bloons TD6"
 
 
 class BTD6Level(Location):
@@ -149,12 +153,20 @@ class BloonsLocations:
             self.locations[f"Level {i+2}"] = index
             index += 1
 
+        for hero in Shared.heroIDs:
+            self.locations[hero] = index
+            index += 1
+
         for name in Shared.knowledgeIDs:
             self.locations[f"{name}-Tree"] = index
             index += 1
 
-        self.auto_location_groups["knowledge"] = set(name for names in self.locations.keys() if names.endswith("-Tree"))
-        self.auto_location_groups["level"] = set(name for names in self.locations.keys() if names.startswith("Level "))
+        self.auto_location_groups["knowledge"] = set(
+            name for names in self.locations.keys() if names.endswith("-Tree")
+        )
+        self.auto_location_groups["level"] = set(
+            name for names in self.locations.keys() if names.startswith("Level ")
+        )
 
     def get_maps(self, minDiff=0, maxDiff=3) -> List[str]:
         """List all Map IDs within the difficulties that can be played."""

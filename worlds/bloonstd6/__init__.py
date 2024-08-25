@@ -5,12 +5,13 @@ from worlds.AutoWorld import World
 
 from typing import Any, ClassVar, Dict, List, Type
 from Options import PerGameCommonOptions
-from worlds.generic.Rules import set_rule
+from worlds.generic.Rules import add_rule, set_rule
 
 from .Options import BloonsTD6Options, Difficulty
-from .Locations import BTD6Knowledge, BTD6Map, BTD6Medal, BloonsLocations
+from .Locations import BTD6Hero, BTD6Knowledge, BTD6Map, BTD6Medal, BloonsLocations
 from .Items import (
     BTD6FillerItem,
+    BTD6HeroUnlock,
     BTD6KnowledgeUnlock,
     BTD6MapUnlock,
     BTD6MedalItem,
@@ -36,7 +37,7 @@ class BTD6World(World):
 
     item_name_to_id = {name: code for name, code in bloonsItemData.items.items()}
     location_name_to_id = {name: code for name, code in bloonsMapData.locations.items()}
-    
+
     item_name_groups = bloonsItemData.auto_item_groups
     location_name_groups = bloonsMapData.auto_location_groups
 
@@ -47,6 +48,14 @@ class BTD6World(World):
 
         self.starting_monkeys: List[str] = []
         self.remaining_monkeys: List[str] = []
+
+        starting_hero: str = ""
+        self.available_heroes: List[str] = Shared.heroIDs.copy()
+
+        self.random.shuffle(self.available_heroes)
+
+        starting_hero = self.available_heroes.pop(0)
+        self.multiworld.push_precollected(self.create_item(starting_hero))
 
         ## Handle selection of maps for locations
         available_maps: List[str] = self.bloonsMapData.get_maps(
@@ -101,8 +110,11 @@ class BTD6World(World):
         map = self.bloonsItemData.items.get(f"{name}-MUnlock")
         monkey = self.bloonsItemData.items.get(f"{name}-TUnlock")
         knowledge = self.bloonsItemData.items.get(f"{name}-KUnlock")
+        hero = self.bloonsItemData.items.get(f"{name}-HUnlock")
         if map:
             return BTD6MapUnlock(f"{name}-MUnlock", map, self.player)
+        if hero:
+            return BTD6HeroUnlock(f"{name}-HUnlock", hero, self.player)
         if knowledge:
             return BTD6KnowledgeUnlock(f"{name}-KUnlock", knowledge, self.player)
         return BTD6MonkeyUnlock(f"{name}-TUnlock", monkey, self.player)
@@ -127,11 +139,17 @@ class BTD6World(World):
             self.multiworld.itempool.append(self.create_item(monkey))
             item_count += 1
 
+        for hero in self.available_heroes:
+            self.multiworld.itempool.append(self.create_item(hero))
+            item_count += 1
+
         for knowledge in Shared.knowledgeIDs:
             self.multiworld.itempool.append(self.create_item(knowledge))
             item_count += 1
 
-        filler_items = len(self.multiworld.get_unfilled_locations(self.player)) - item_count
+        filler_items = (
+            len(self.multiworld.get_unfilled_locations(self.player)) - item_count
+        )
         for _ in range(filler_items):
             self.multiworld.itempool.append(self.create_item(BloonsItems.MONEY_NAME))
 
@@ -140,6 +158,7 @@ class BTD6World(World):
         map_select_region = Region("Map Select", self.player, self.multiworld)
         xp_region = Region("XP Progression", self.player, self.multiworld)
         knowledge_region = Region("Knowledge Tree", self.player, self.multiworld)
+        hero_select_region = Region("Hero Select", self.player, self.multiworld)
         self.multiworld.regions += [
             menu_region,
             map_select_region,
@@ -229,6 +248,62 @@ class BTD6World(World):
                     },
                     BTD6Medal,
                 )
+                add_rule(
+                    self.multiworld.get_location(f"{name}-PrimaryOnly", self.player),
+                    rule=lambda state: state.has_from_list(
+                        {
+                            "DartMonkey-TUnlock",
+                            "BoomerangMonkey-TUnlock",
+                            "BombShooter-TUnlock",
+                            "TackShooter-TUnlock",
+                            "IceMonkey-TUnlock",
+                            "GlueGunner-TUnlock",
+                        },
+                        self.player,
+                        2,
+                    ),
+                )
+                add_rule(
+                    self.multiworld.get_location(f"{name}-MilitaryOnly", self.player),
+                    rule=lambda state: state.has_from_list(
+                        {
+                            "SniperMonkey-TUnlock",
+                            "MonkeySub-TUnlock",
+                            "MonkeyBuccaneer-TUnlock",
+                            "MonkeyAce-TUnlock",
+                            "HeliPilot-TUnlock",
+                            "MortarMonkey-TUnlock",
+                            "DartlingGunner-TUnlock",
+                        },
+                        self.player,
+                        2,
+                    ),
+                )
+                add_rule(
+                    self.multiworld.get_location(f"{name}-MagicOnly", self.player),
+                    rule=lambda state: state.has_from_list(
+                        {
+                            "WizardMonkey-TUnlock",
+                            "SuperMonkey-TUnlock",
+                            "NinjaMonkey-TUnlock",
+                            "Alchemist-TUnlock",
+                            "Druid-TUnlock",
+                            "Mermonkey-TUnlock",
+                        },
+                        self.player,
+                        2,
+                    ),
+                )
+        # endregion
+
+        # region Hero Locations
+        for hero in Shared.heroIDs:
+            region = Region(hero, self.player, self.multiworld)
+            region.add_locations({hero: self.bloonsMapData.locations[hero]}, BTD6Hero)
+            hero_select_region.connect(
+                region, rule=lambda state: state.has(hero + "-HUnlock", self.player)
+            )
+            self.multiworld.regions.append(region)
         # endregion
 
         # region Level Locations
