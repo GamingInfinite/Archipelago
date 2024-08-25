@@ -138,9 +138,9 @@ class MaxLevel(Range):
     """
 
     display_name = "Maximum Level"
-    range_start = 24
+    range_start = 22
     range_end = 150
-    default = 24
+    default = 34
 
 
 @dataclass

@@ -137,21 +137,3 @@ class Shared:
         "PowerfulMonkeyStorm",
         "GrandPrixSpree",
     ]
-    heroIDs: List[str] = [
-        "Quincy",
-        "Gwendolin",
-        "StrikerJones",
-        "ObynGreenfoot",
-        "Rosalia",
-        "CaptainChurchill",
-        "Benjamin",
-        "PatFusty",
-        "Ezili",
-        "Adora",
-        "Etienne",
-        "Sauda",
-        "AdmiralBrickell",
-        "Psi",
-        "Geraldo",
-        "Corvus",
-    ]

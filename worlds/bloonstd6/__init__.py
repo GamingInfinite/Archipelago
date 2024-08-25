@@ -5,13 +5,12 @@ from worlds.AutoWorld import World
 
 from typing import Any, ClassVar, Dict, List, Type
 from Options import PerGameCommonOptions
-from worlds.generic.Rules import add_rule, set_rule
+from worlds.generic.Rules import set_rule
 
 from .Options import BloonsTD6Options, Difficulty
-from .Locations import BTD6Hero, BTD6Knowledge, BTD6Map, BTD6Medal, BloonsLocations
+from .Locations import BTD6Knowledge, BTD6Map, BTD6Medal, BloonsLocations
 from .Items import (
     BTD6FillerItem,
-    BTD6HeroUnlock,
     BTD6KnowledgeUnlock,
     BTD6MapUnlock,
     BTD6MedalItem,
@@ -37,7 +36,7 @@ class BTD6World(World):
 
     item_name_to_id = {name: code for name, code in bloonsItemData.items.items()}
     location_name_to_id = {name: code for name, code in bloonsMapData.locations.items()}
-
+    
     item_name_groups = bloonsItemData.auto_item_groups
     location_name_groups = bloonsMapData.auto_location_groups
 
@@ -49,12 +48,6 @@ class BTD6World(World):
         self.starting_monkeys: List[str] = []
         self.remaining_monkeys: List[str] = []
 
-        self.starting_hero: str = ""
-        self.remaining_heroes: List[str] = []
-
-        available_heroes: List[str] = Shared.heroIDs.copy()
-        self.random.shuffle(available_heroes)
-
         ## Handle selection of maps for locations
         available_maps: List[str] = self.bloonsMapData.get_maps(
             self.options.min_map_diff.value, self.options.max_map_diff.value
@@ -63,7 +56,6 @@ class BTD6World(World):
 
         # Select Victory Map
         self.victory_map_name = available_maps.pop()
-        self.starting_hero = available_heroes.pop()
 
         # Select and initialize starting maps
         for _ in range(self.options.starting_map_count.value):
@@ -96,11 +88,8 @@ class BTD6World(World):
         for monkey in self.starting_monkeys:
             self.multiworld.push_precollected(self.create_item(monkey))
 
-        self.multiworld.push_precollected(self.create_item(self.starting_hero))
-
         # Put the rest of the monkeys into storage for item generation
         self.remaining_monkeys.extend(available_towers)
-        self.remaining_heroes.extend(available_heroes)
 
     def create_item(self, name: str) -> Item:
         if name == self.bloonsItemData.MEDAL_NAME:
@@ -112,14 +101,11 @@ class BTD6World(World):
         map = self.bloonsItemData.items.get(f"{name}-MUnlock")
         monkey = self.bloonsItemData.items.get(f"{name}-TUnlock")
         knowledge = self.bloonsItemData.items.get(f"{name}-KUnlock")
-        hero = self.bloonsItemData.items.get(f"{name}-HUnlock")
         if map:
-            return BTD6MapUnlock(f"{name}", map, self.player)
+            return BTD6MapUnlock(f"{name}-MUnlock", map, self.player)
         if knowledge:
-            return BTD6KnowledgeUnlock(f"{name}", knowledge, self.player)
-        if hero:
-            return BTD6HeroUnlock(f"{name}", hero, self.player)
-        return BTD6MonkeyUnlock(f"{name}", monkey, self.player)
+            return BTD6KnowledgeUnlock(f"{name}-KUnlock", knowledge, self.player)
+        return BTD6MonkeyUnlock(f"{name}-TUnlock", monkey, self.player)
         # Remember to add Monkey Money later for future Hero Checks.
 
     def create_items(self) -> None:
@@ -141,17 +127,11 @@ class BTD6World(World):
             self.multiworld.itempool.append(self.create_item(monkey))
             item_count += 1
 
-        for hero in self.remaining_heroes:
-            self.multiworld.itempool.append(self.create_item(hero))
-            item_count += 1
-
         for knowledge in Shared.knowledgeIDs:
             self.multiworld.itempool.append(self.create_item(knowledge))
             item_count += 1
 
-        filler_items = (
-            len(self.multiworld.get_unfilled_locations(self.player)) - item_count
-        )
+        filler_items = len(self.multiworld.get_unfilled_locations(self.player)) - item_count
         for _ in range(filler_items):
             self.multiworld.itempool.append(self.create_item(BloonsItems.MONEY_NAME))
 
@@ -160,18 +140,15 @@ class BTD6World(World):
         map_select_region = Region("Map Select", self.player, self.multiworld)
         xp_region = Region("XP Progression", self.player, self.multiworld)
         knowledge_region = Region("Knowledge Tree", self.player, self.multiworld)
-        hero_region = Region("Hero Menu", self.player, self.multiworld)
         self.multiworld.regions += [
             menu_region,
             map_select_region,
             xp_region,
             knowledge_region,
-            hero_region,
         ]
         menu_region.connect(map_select_region)
         menu_region.connect(xp_region)
         menu_region.connect(knowledge_region)
-        menu_region.connect(hero_region)
 
         all_maps_copy = self.starting_maps.copy()
         incl_maps_copy = self.included_maps.copy()
@@ -189,11 +166,11 @@ class BTD6World(World):
             map_select_region.connect(
                 region,
                 name,
-                lambda state: state.has(name, self.player),
+                lambda state, place=name + "-MUnlock": state.has(place, self.player),
             )
             region.add_locations(
                 {
-                    name: self.bloonsMapData.locations[name + "-Unlock"],
+                    name + "-Unlock": self.bloonsMapData.locations[name + "-Unlock"],
                 },
                 BTD6Map,
             )
@@ -201,109 +178,56 @@ class BTD6World(World):
             # Handle Mode Based Checks
             region.add_locations(
                 {
-                    name + " (Easy)": self.bloonsMapData.locations[name + "-Easy"],
-                    name + " (Medium)": self.bloonsMapData.locations[name + "-Medium"],
-                    name + " (Hard)": self.bloonsMapData.locations[name + "-Hard"],
+                    name + "-Easy": self.bloonsMapData.locations[name + "-Easy"],
+                    name + "-Medium": self.bloonsMapData.locations[name + "-Medium"],
+                    name + "-Hard": self.bloonsMapData.locations[name + "-Hard"],
                     name
-                    + " (Impoppable)": self.bloonsMapData.locations[
-                        name + "-Impoppable"
-                    ],
+                    + "-Impoppable": self.bloonsMapData.locations[name + "-Impoppable"],
                 },
                 BTD6Medal,
             )
             if self.options.rando_difficulty.value >= Difficulty.option_Advanced:
                 region.add_locations(
-                    {
-                        name
-                        + " (Chimps)": self.bloonsMapData.locations[name + "-Clicks"]
-                    },
+                    {name + "-Clicks": self.bloonsMapData.locations[name + "-Clicks"]},
                     BTD6Medal,
                 )
             if self.options.rando_difficulty.value == Difficulty.option_Expert:
                 region.add_locations(
                     {
                         name
-                        + " (PrimaryOnly)": self.bloonsMapData.locations[
+                        + "-PrimaryOnly": self.bloonsMapData.locations[
                             name + "-PrimaryOnly"
                         ],
                         name
-                        + " (Deflation)": self.bloonsMapData.locations[
+                        + "-Deflation": self.bloonsMapData.locations[
                             name + "-Deflation"
                         ],
                         name
-                        + " (MilitaryOnly)": self.bloonsMapData.locations[
+                        + "-MilitaryOnly": self.bloonsMapData.locations[
                             name + "-MilitaryOnly"
                         ],
                         name
-                        + " (Apopalypse)": self.bloonsMapData.locations[
+                        + "-Apopalypse": self.bloonsMapData.locations[
                             name + "-Apopalypse"
                         ],
                         name
-                        + " (Reverse)": self.bloonsMapData.locations[name + "-Reverse"],
+                        + "-Reverse": self.bloonsMapData.locations[name + "-Reverse"],
                         name
-                        + " (MagicOnly)": self.bloonsMapData.locations[
+                        + "-MagicOnly": self.bloonsMapData.locations[
                             name + "-MagicOnly"
                         ],
                         name
-                        + " (DoubleMoabHealth)": self.bloonsMapData.locations[
+                        + "-DoubleMoabHealth": self.bloonsMapData.locations[
                             name + "-DoubleMoabHealth"
                         ],
                         name
-                        + " (HalfCash)": self.bloonsMapData.locations[
-                            name + "-HalfCash"
-                        ],
+                        + "-HalfCash": self.bloonsMapData.locations[name + "-HalfCash"],
                         name
-                        + " (AlternateBloonsRounds)": self.bloonsMapData.locations[
+                        + "-AlternateBloonsRounds": self.bloonsMapData.locations[
                             name + "-AlternateBloonsRounds"
                         ],
                     },
                     BTD6Medal,
-                )
-                add_rule(
-                    self.get_location(f"{name} (PrimaryOnly)"),
-                    rule=lambda state: state.has_from_list(
-                        {
-                            "DartMonkey",
-                            "BoomerangMonkey",
-                            "BombShooter",
-                            "TackShooter",
-                            "IceMonkey",
-                            "GlueGunner",
-                        },
-                        self.player,
-                        2,
-                    ),
-                )
-                add_rule(
-                    self.get_location(f"{name} (MilitaryOnly)"),
-                    rule=lambda state: state.has_from_list(
-                        {
-                            "SniperMonkey",
-                            "MonkeySub",
-                            "MonkeyBuccaneer",
-                            "MonkeyAce",
-                            "HeliPilot",
-                            "MortarMonkey",
-                            "DartlingGunner",
-                        },
-                        self.player,
-                        2,
-                    ),
-                )
-                add_rule(
-                    self.get_location(f"{name} (MagicOnly)"),
-                    rule=lambda state: state.has_from_list(
-                        {
-                            "WizardMonkey",
-                            "SuperMonkey",
-                            "NinjaMonkey",
-                            "Alchemist",
-                            "Druid",
-                            "Mermonkey",
-                        },
-                        self.player,
-                        2,
-                    ),
                 )
         # endregion
 
@@ -311,15 +235,6 @@ class BTD6World(World):
         for i in range(self.options.max_level.value - 1):
             name: str = f"Level {i+2}"
             xp_region.add_locations({name: self.bloonsMapData.locations[name]})
-        # endregion
-
-        # region Hero Locations
-        for hero in Shared.heroIDs:
-            region = Region(hero, self.player, self.multiworld)
-            region.add_locations(
-                {hero: self.bloonsMapData.locations[f"{hero}"]}, BTD6Hero
-            )
-            hero_region.connect(region)
         # endregion
 
         # Knowledge Specific Regions and Locations
@@ -354,7 +269,7 @@ class BTD6World(World):
             region = Region(name, self.player, self.multiworld)
             region.add_locations(
                 {
-                    name + " (Unlock)": self.bloonsMapData.locations[f"{name}-Tree"],
+                    name + "-Tree": self.bloonsMapData.locations[f"{name}-Tree"],
                 },
                 BTD6Knowledge,
             )
@@ -370,7 +285,7 @@ class BTD6World(World):
                     knowledge_regions[knowledge_id],
                     rule=lambda state, place=Shared.knowledgeIDs[
                         knowledge_id
-                    ]: state.has(place, self.player),
+                    ] + "-KUnlock": state.has(place, self.player),
                 )
             else:
                 region: Region = parent_region
@@ -378,7 +293,7 @@ class BTD6World(World):
                     knowledge_regions[knowledge_id],
                     rule=lambda state, place=Shared.knowledgeIDs[
                         knowledge_id
-                    ]: state.has(place, self.player),
+                    ] + "-KUnlock": state.has(place, self.player),
                 )
 
         # region K. Tree Logic
