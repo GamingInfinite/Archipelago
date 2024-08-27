@@ -128,7 +128,7 @@ class BloonsLocations:
     auto_location_groups: Dict[str, set] = {}
 
     def __init__(self) -> None:
-        index = 0
+        index = 1
 
         for _, list in self.map_names_by_difficulty.items():
             for name in list:
