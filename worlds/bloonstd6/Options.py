@@ -1,4 +1,4 @@
-from Options import Choice, Toggle, Range, PerGameCommonOptions
+from Options import Choice, OptionSet, Toggle, Range, PerGameCommonOptions
 from dataclasses import dataclass
 
 
@@ -18,7 +18,7 @@ class TotalMaps(Range):
     """
 
     range_start = 15
-    range_end = 40
+    range_end = 69
     default = 15
     display_name = "Total Map Count"
 
@@ -69,6 +69,27 @@ class Difficulty(Choice):
     option_Advanced = 5
     option_Expert = 14
     default = 4
+
+
+class MedalSelect(OptionSet):
+    display_name = "Custom Medals"
+    default = []
+    valid_keys = [
+        "Easy",
+        "PrimaryOnly",
+        "Deflation",
+        "Medium",
+        "MilitaryOnly",
+        "Apopalypse",
+        "Reverse",
+        "Hard",
+        "MagicOnly",
+        "DoubleMoabHealth",
+        "HalfCash",
+        "AlternateBloonsRounds",
+        "Impoppable",
+        "Chimps",
+    ]
 
 
 class MedalRequirementPercentage(Range):
@@ -134,13 +155,13 @@ class MaxLevel(Range):
     """
     What do you want to be the maximum level of the randomizer.
 
-    Levels start at 0, and you're required to go to at least 22
+    Levels start at 1, and you're required to go to at least 24
     """
 
     display_name = "Maximum Level"
-    range_start = 22
+    range_start = 24
     range_end = 150
-    default = 34
+    default = 24
 
 
 @dataclass
@@ -150,6 +171,7 @@ class BloonsTD6Options(PerGameCommonOptions):
     min_map_diff: MinMapDiff
     max_map_diff: MaxMapDiff
     rando_difficulty: Difficulty
+    custom_medal_inclusion: MedalSelect
     medalreq: MedalRequirementPercentage
     starting_monkey: StartingMonkeys
     num_start_monkey: StartingMonkeyAmount
