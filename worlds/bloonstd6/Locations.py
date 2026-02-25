@@ -64,6 +64,8 @@ class BloonsLocations:
             "Hedge",
             "EndOfTheRoad",
             "Logs",
+            "SpaPits",
+            "ThreeMinesAround",
         ],
         "intermediate": [
             "LuminousCove",
@@ -108,6 +110,12 @@ class BloonsLocations:
             "OffTheCoast",
             "Cornfield",
             "Underground",
+            "AncientPortal",
+            "EnchantedGlade",
+            "LastResort",
+            "LostCrevasse",
+            "PartyParade",
+            "SunsetGulch",
         ],
         "expert": [
             "GlacialTrail",
@@ -122,6 +130,7 @@ class BloonsLocations:
             "DarkCastle",
             "MuddyPuddles",
             "#ouch",
+            "TrickyTracks",
         ],
     }
 

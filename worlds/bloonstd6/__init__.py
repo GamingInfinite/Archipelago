@@ -258,6 +258,7 @@ class BTD6World(World):
                             "TackShooter-TUnlock",
                             "IceMonkey-TUnlock",
                             "GlueGunner-TUnlock",
+                            "Desperado-TUnlock"
                         },
                         self.player,
                         2,

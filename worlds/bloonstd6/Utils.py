@@ -155,4 +155,5 @@ class Shared:
         "Psi",
         "Geraldo",
         "Corvus",
+        "Silas",
     ]

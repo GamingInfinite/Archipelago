@@ -86,6 +86,7 @@ class BloonsItems:
         "MonkeyVillage",
         "EngineerMonkey",
         "BeastHandler",
+        "Desperado",
     ]
 
     def __init__(self) -> None:

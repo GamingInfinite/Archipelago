@@ -1,4 +1,4 @@
-from Options import Choice, OptionSet, Toggle, Range, PerGameCommonOptions
+from Options import Choice, Toggle, Range, PerGameCommonOptions
 from dataclasses import dataclass
 
 
@@ -18,7 +18,7 @@ class TotalMaps(Range):
     """
 
     range_start = 15
-    range_end = 69
+    range_end = 60
     default = 15
     display_name = "Total Map Count"
 
@@ -71,27 +71,6 @@ class Difficulty(Choice):
     default = 4
 
 
-class MedalSelect(OptionSet):
-    display_name = "Custom Medals"
-    default = []
-    valid_keys = [
-        "Easy",
-        "PrimaryOnly",
-        "Deflation",
-        "Medium",
-        "MilitaryOnly",
-        "Apopalypse",
-        "Reverse",
-        "Hard",
-        "MagicOnly",
-        "DoubleMoabHealth",
-        "HalfCash",
-        "AlternateBloonsRounds",
-        "Impoppable",
-        "Chimps",
-    ]
-
-
 class MedalRequirementPercentage(Range):
     """
     The Percentage of the Total Medals required for you to access the Goal Map
@@ -102,7 +81,7 @@ class MedalRequirementPercentage(Range):
     display_name = "Medal Requirement Percentage"
     range_start = 50
     range_end = 100
-    default = 50
+    default = 60
 
 
 class StartingMonkeys(Toggle):
@@ -148,20 +127,20 @@ class StaticXPRequirement(Range):
     display_name = "Static XP Requirement"
     range_start = 500
     range_end = 10000
-    default = 1000
+    default = 5000
 
 
 class MaxLevel(Range):
     """
     What do you want to be the maximum level of the randomizer.
 
-    Levels start at 1, and you're required to go to at least 24
+    Levels start at 0, and you're required to go to at least 40
     """
 
     display_name = "Maximum Level"
-    range_start = 24
+    range_start = 40
     range_end = 150
-    default = 24
+    default = 40
 
 
 @dataclass
@@ -171,7 +150,6 @@ class BloonsTD6Options(PerGameCommonOptions):
     min_map_diff: MinMapDiff
     max_map_diff: MaxMapDiff
     rando_difficulty: Difficulty
-    custom_medal_inclusion: MedalSelect
     medalreq: MedalRequirementPercentage
     starting_monkey: StartingMonkeys
     num_start_monkey: StartingMonkeyAmount
